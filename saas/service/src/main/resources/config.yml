@@ -1,0 +1,15 @@
+database:
+  driverClass: com.mysql.jdbc.Driver
+  user: rw
+  password: password123
+  url: jdbc:mysql://localhost:3306/cassata
+  initialSize: 5
+  minSize: 2
+  maxSize: 20
+  properties:
+    acquireIncrement: 5
+    numHelperThreads: 3
+    checkoutTimeout: 10000
+
+service:
+    port: 8088
