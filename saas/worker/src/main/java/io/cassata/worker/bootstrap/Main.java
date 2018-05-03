@@ -20,15 +20,21 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.cassata.commons.bootstrap.DatabaseModule;
 import io.cassata.commons.dal.EventsTableDao;
-import io.cassata.commons.http.HttpRequestWrapper;
-import io.cassata.commons.http.HttpResponse;
-import io.cassata.commons.models.Event;
-import io.cassata.commons.models.EventStatus;
+import io.cassata.worker.core.WorkerThread;
 import org.skife.jdbi.v2.DBI;
 
-import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
+
+    private static int threadPoolSize = 5; //FIXME Get from Guice
+    private static int threadSchedulingPeriod = 10; //FIXME get from Guice
+    private static final int INITIAL_DELAY_BOUND = 10;
+
     public static void main(String[] args) {
 
         DBI dbi = new DBI("jdbc:mysql://localhost:3306/cassata", "rw", "password123");
@@ -36,28 +42,12 @@ public class Main {
 
         EventsTableDao eventsTableDao = injector.getInstance(EventsTableDao.class);
 
-        List<Event> eventList = eventsTableDao.fetchAndLockEventsToProcess(2);
+        ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(threadPoolSize);
 
-        for (Event event: eventList) {
-            try {
-                System.out.println("Processing Event: " + event.getEventJson());
+        Random rand = new Random();
 
-                HttpRequestWrapper requestWrapper = new HttpRequestWrapper.Builder(event.getDestinationUrl())
-                        .withRequestType(event.getHttpMethod())
-                        .withHeaders(event.getHeaderMap())
-                        .build();
-
-                HttpResponse response = requestWrapper.execute(event.getEventJson());
-
-                if (response.getResponseCode() < 300) {
-                    eventsTableDao.updateEventStatus(event.getId(), EventStatus.COMPLETED);
-                } else {
-                    eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
-                }
-            } catch (Exception e) {
-                eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
-                e.printStackTrace();
-            }
+        for (int i = 0; i < threadPoolSize; i++) {
+            scheduledPool.scheduleAtFixedRate(new WorkerThread(eventsTableDao), rand.nextInt(INITIAL_DELAY_BOUND), threadSchedulingPeriod, TimeUnit.SECONDS);
         }
     }
 }
