@@ -16,9 +16,11 @@
 
 package io.cassata.commons.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cassata.commons.exceptions.SchedulerException;
+import io.cassata.commons.http.HttpRequestType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +30,7 @@ import org.skife.jdbi.v2.unstable.BindIn;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +43,7 @@ public class Event {
     private String application;
 
     private String eventJson;
-    private String httpMethod; //TODO Replace this with an Enum
+    private HttpRequestType httpMethod; //TODO Replace this with an Enum
     private List<String> headers;
     private String destinationUrl;
     private EventStatus eventStatus;
@@ -52,5 +55,17 @@ public class Event {
         } catch (JsonProcessingException e) {
             throw new SchedulerException("Unable to convert map to JSON", e);
         }
+    }
+
+    public Map<String, String> getHeaderMap() {
+        Map<String, String> headerMap = new HashMap<String, String>();
+
+        for (String header: headers) {
+            String[] split = header.split(":");
+            System.out.println("Adding header: " + split[0] + " : " + split[1]);
+            headerMap.put(split[0], split[1]);
+        }
+
+        return headerMap;
     }
 }

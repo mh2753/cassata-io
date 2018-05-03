@@ -47,7 +47,11 @@ public class HttpRequestWrapper {
     }
 
 
-    public HttpRequestWrapper(String url) {
+    private HttpRequestWrapper(String url,
+                               HttpRequestType requestType,
+                               Map<String, String> headers) {
+
+        this.headers = headers;
         URL endpoint;
         try {
 
@@ -63,7 +67,7 @@ public class HttpRequestWrapper {
             e.printStackTrace();
         }
         try {
-            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestMethod(requestType.name());
             httpURLConnection.setConnectTimeout(5000);
             httpURLConnection.setDoOutput(true);
         } catch (ProtocolException e) {
@@ -71,16 +75,7 @@ public class HttpRequestWrapper {
         }
     }
 
-    public String execute(Object requestObject) {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String body = null;
-        try {
-            body = objectMapper.writeValueAsString(requestObject);
-        } catch (JsonProcessingException e) {
-            return null;
-        }
-
+    public HttpResponse execute(String body) {
         for (Map.Entry<String, String> entry: headers.entrySet()) {
             httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
         }
@@ -105,13 +100,60 @@ public class HttpRequestWrapper {
 
             System.out.println("POST REQUEST RESPONSE: " + responseString);//FIXME Remove
 
-            return responseString;
+            return new HttpResponse(responseString, httpURLConnection.getResponseCode());
         } catch (Exception e) {
             throw new RuntimeException("Unable to connect to server", e);
         } finally {
             if (httpURLConnection != null) {
                 httpURLConnection.disconnect();
             }
+        }
+    }
+
+    public HttpResponse execute(Object requestObject) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = null;
+        try {
+            body = objectMapper.writeValueAsString(requestObject);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+
+        return execute(body);
+    }
+
+    public static class Builder {
+        private String url;
+        private Map<String, String> headers;
+        private HttpRequestType httpRequestType;
+        private final String defaultHeaderName = "Content-Type";
+        private final String defaultHeaderValue = "application/json";
+
+        public Builder(String url) {
+            this.url = url;
+        }
+
+        public Builder withHeaders(Map<String, String> headers) {
+            this.headers = headers;
+            return this;
+        }
+
+        public Builder withRequestType(HttpRequestType requestType) {
+            this.httpRequestType = requestType;
+            return this;
+        }
+
+        public HttpRequestWrapper build() {
+            if (httpRequestType == null) {
+                httpRequestType = HttpRequestType.POST;
+            }
+            if (headers == null) {
+                headers = new HashMap<String, String>();
+                headers.put(defaultHeaderName, defaultHeaderValue);
+            }
+
+            return new HttpRequestWrapper(url, httpRequestType, headers);
         }
     }
 }

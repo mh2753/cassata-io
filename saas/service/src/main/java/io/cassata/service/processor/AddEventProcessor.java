@@ -17,6 +17,7 @@
 package io.cassata.service.processor;
 
 import io.cassata.commons.dal.EventsTableDao;
+import io.cassata.commons.http.HttpRequestType;
 import io.cassata.commons.models.Event;
 import io.cassata.commons.models.EventStatus;
 import io.cassata.service.api.AddEventRequest;
@@ -37,7 +38,7 @@ public class AddEventProcessor {
                 .eventId(addEventRequest.getEventId())
                 .application(addEventRequest.getApplication())
                 .eventJson(addEventRequest.getEventJson())
-                .httpMethod(addEventRequest.getHttpMethod())
+                .httpMethod(HttpRequestType.POST) //FIXME get the real one
                 .destinationUrl(addEventRequest.getDestinationUrl())
                 .eventStatus(EventStatus.PENDING)
                 .expiry(new Timestamp(addEventRequest.getExpiry()))

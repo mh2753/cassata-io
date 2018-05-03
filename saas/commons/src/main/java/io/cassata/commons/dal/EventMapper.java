@@ -16,18 +16,39 @@
 
 package io.cassata.commons.dal;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cassata.commons.http.HttpRequestType;
 import io.cassata.commons.models.Event;
+import io.cassata.commons.models.EventStatus;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class EventMapper implements ResultSetMapper<Event> {
     public Event map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<String> headers = null;
+        try {
+             headers = objectMapper.readValue(resultSet.getString("http_headers"), List.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return Event.builder()
                 .id(resultSet.getInt("id"))
                 .eventId(resultSet.getString("event_id"))
+                .application(resultSet.getString("application"))
+                .destinationUrl(resultSet.getString("destination_url"))
+                .eventJson(resultSet.getString("event_json"))
+                .eventStatus(EventStatus.PENDING) //FIXME get this from DB
+                .httpMethod(HttpRequestType.POST) //FIXME get this from DB
+                .headers(headers)
+                .expiry(resultSet.getTimestamp("expiry"))
                 .build();
     }
 }

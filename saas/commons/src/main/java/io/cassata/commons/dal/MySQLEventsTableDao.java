@@ -32,7 +32,7 @@ public abstract class MySQLEventsTableDao implements EventsTableDao {
     //TODO get the table name dynamically
 
     @RegisterMapper(EventMapper.class)
-    @SqlUpdate("insert into events " +
+    @SqlUpdate("insert into _saas_events " +
             "(event_id, application, event_json, http_method, http_headers, destination_url, status, expiry, created_at)\n" +
             "values (:eventId, :application, :eventJson, :httpMethod, :headers, :destinationUrl, :eventStatus, :expiry, now())")
     public abstract void insertEvent(@BindBean  Event event);

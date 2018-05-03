@@ -20,7 +20,10 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.cassata.commons.bootstrap.DatabaseModule;
 import io.cassata.commons.dal.EventsTableDao;
+import io.cassata.commons.http.HttpRequestWrapper;
+import io.cassata.commons.http.HttpResponse;
 import io.cassata.commons.models.Event;
+import io.cassata.commons.models.EventStatus;
 import org.skife.jdbi.v2.DBI;
 
 import java.util.List;
@@ -36,7 +39,25 @@ public class Main {
         List<Event> eventList = eventsTableDao.fetchAndLockEventsToProcess(2);
 
         for (Event event: eventList) {
-            System.out.println(event);
+            try {
+                System.out.println("Processing Event: " + event.getEventJson());
+
+                HttpRequestWrapper requestWrapper = new HttpRequestWrapper.Builder(event.getDestinationUrl())
+                        .withRequestType(event.getHttpMethod())
+                        .withHeaders(event.getHeaderMap())
+                        .build();
+
+                HttpResponse response = requestWrapper.execute(event.getEventJson());
+
+                if (response.getResponseCode() < 300) {
+                    eventsTableDao.updateEventStatus(event.getId(), EventStatus.COMPLETED);
+                } else {
+                    eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
+                }
+            } catch (Exception e) {
+                eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
+                e.printStackTrace();
+            }
         }
     }
 }

@@ -13,21 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package io.cassata.commons.dal;
 
-import io.cassata.commons.models.Event;
-import io.cassata.commons.models.EventStatus;
+package io.cassata.commons.http;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-public interface EventsTableDao {
+@Data
+@AllArgsConstructor
+public class HttpResponse {
 
-    public void insertEvent(Event event);
-
-    public List<Event> fetchAndLockEventsToProcess(int count);
-
-    public void updateEventStatus(int eventId, EventStatus eventStatus);
-
-    public void batchUpdateStatus(String status, List<Integer> ids);
-
+    private String responseString;
+    private int responseCode;
 }
