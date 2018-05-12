@@ -21,39 +21,41 @@ import io.cassata.commons.http.HttpRequestWrapper;
 import io.cassata.commons.http.HttpResponse;
 import io.cassata.commons.models.Event;
 import io.cassata.commons.models.EventStatus;
+import oracle.jrockit.jfr.openmbean.EventSettingType;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 public class WorkerThread implements Runnable {
 
     private EventsTableDao eventsTableDao;
+    private int batchSize = 5;
+    private ExecutorService executorService;
 
     public WorkerThread(EventsTableDao eventsTableDao) {
         this.eventsTableDao = eventsTableDao;
+        this.executorService = Executors.newFixedThreadPool(batchSize);
     }
 
     public void run() {
 
-        List<Event> eventList = eventsTableDao.fetchAndLockEventsToProcess(2);
+        List<Event> eventList = eventsTableDao.fetchAndLockEventsToProcess(batchSize);
 
-        for (Event event: eventList) {
+        while (eventList.size() > 0) {
+            List<Callable<Void>> eventProcessors = new ArrayList<Callable<Void>>();
+            for (Event event: eventList) {
+                eventProcessors.add(new EventProcessor(event, 5, eventsTableDao));
+            }
+
             try {
-                HttpRequestWrapper requestWrapper = new HttpRequestWrapper.Builder(event.getDestinationUrl())
-                        .withRequestType(event.getHttpMethod())
-                        .withHeaders(event.getHeaderMap())
-                        .build();
 
-                HttpResponse response = requestWrapper.execute(event.getEventJson());
+                List<Future<Void>> futures = executorService.invokeAll(eventProcessors);
 
-                if (response.getResponseCode() < 300) {
-                    eventsTableDao.updateEventStatus(event.getId(), EventStatus.COMPLETED);
-                } else {
-                    eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
-                }
-            } catch (Exception e) {
-                eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
         }
     }
 }

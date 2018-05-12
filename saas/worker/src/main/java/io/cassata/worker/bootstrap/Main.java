@@ -23,10 +23,11 @@ import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.worker.core.WorkerThread;
 import org.skife.jdbi.v2.DBI;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
@@ -44,10 +45,14 @@ public class Main {
 
         ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(threadPoolSize);
 
+        //FIXME Move this to guice
+        List<WorkerThread> workerThreads = new ArrayList<WorkerThread>();
+        workerThreads.add(new WorkerThread(eventsTableDao));
+
         Random rand = new Random();
 
-        for (int i = 0; i < threadPoolSize; i++) {
-            scheduledPool.scheduleAtFixedRate(new WorkerThread(eventsTableDao), rand.nextInt(INITIAL_DELAY_BOUND), threadSchedulingPeriod, TimeUnit.SECONDS);
+        for (WorkerThread workerThread: workerThreads) {
+            scheduledPool.scheduleAtFixedRate(workerThread, rand.nextInt(INITIAL_DELAY_BOUND), threadSchedulingPeriod, TimeUnit.SECONDS);
         }
     }
 }
