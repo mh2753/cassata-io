@@ -13,3 +13,15 @@ database:
 
 service:
     port: 8088
+
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: ../logs/service.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: ../logs/service-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
+      logFormat: 
