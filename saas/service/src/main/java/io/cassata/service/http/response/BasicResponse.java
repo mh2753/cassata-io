@@ -14,19 +14,18 @@
  *    limitations under the License.
  */
 
-package io.cassata.commons.exceptions;
+package io.cassata.service.http.response;
 
-public class SchedulerException extends RuntimeException {
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    public SchedulerException(Throwable t) {
-        super(t);
-    }
-
-    public SchedulerException(String message, Throwable t) {
-        super(message, t);
-    }
-
-    public SchedulerException(String message) {
-        super(message);
-    }
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BasicResponse {
+    private String status;
+    private String message;
 }

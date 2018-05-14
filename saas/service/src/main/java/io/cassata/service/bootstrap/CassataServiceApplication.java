@@ -23,15 +23,18 @@ import io.cassata.commons.models.Event;
 import io.cassata.commons.models.EventStatus;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.service.processor.AddEventProcessor;
+import io.cassata.service.processor.DeleteEventProcessor;
 import io.dropwizard.Application;
 import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Environment;
+import lombok.extern.slf4j.Slf4j;
 import org.skife.jdbi.v2.DBI;
 
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 
+@Slf4j
 public class CassataServiceApplication extends Application<CassataServiceConfiguration> {
 
     public static void main(String[] args) {
@@ -53,8 +56,9 @@ public class CassataServiceApplication extends Application<CassataServiceConfigu
 
         EventsTableDao eventsTableDao = injector.getInstance(EventsTableDao.class);
         AddEventProcessor addEventProcessor = new AddEventProcessor(eventsTableDao);
+        DeleteEventProcessor deleteEventProcessor = new DeleteEventProcessor(eventsTableDao);
 
-        CassataServiceResource resource = new CassataServiceResource(addEventProcessor);
+        CassataServiceResource resource = new CassataServiceResource(addEventProcessor, deleteEventProcessor);
         environment.jersey().register(resource);
     }
 }

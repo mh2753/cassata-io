@@ -66,4 +66,11 @@ public abstract class MySQLEventsTableDao implements EventsTableDao {
 
         return events;
     }
+
+    @SqlUpdate("Delete from _saas_events where application = :appId and event_id = :eventId and status = 'PENDING'")
+    public abstract int deleteEvent(@Bind("appId") String appId, @Bind("eventId") String eventId);
+
+    @RegisterMapper(EventMapper.class)
+    @SqlQuery("SELECT * FROM _saas_events where application = :appId and event_id = :eventId")
+    public abstract Event getEventById(@Bind("appId") String appId, @Bind("eventId") String eventId);
 }

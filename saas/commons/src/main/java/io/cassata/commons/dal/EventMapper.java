@@ -17,6 +17,7 @@
 package io.cassata.commons.dal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cassata.commons.exceptions.CassataException;
 import io.cassata.commons.http.HttpRequestType;
 import io.cassata.commons.models.Event;
 import io.cassata.commons.models.EventStatus;
@@ -36,7 +37,7 @@ public class EventMapper implements ResultSetMapper<Event> {
         try {
              headers = objectMapper.readValue(resultSet.getString("http_headers"), List.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CassataException("Unable to parse http_headers from DB", e);
         }
 
         return Event.builder()
@@ -45,8 +46,8 @@ public class EventMapper implements ResultSetMapper<Event> {
                 .application(resultSet.getString("application"))
                 .destinationUrl(resultSet.getString("destination_url"))
                 .eventJson(resultSet.getString("event_json"))
-                .eventStatus(EventStatus.PENDING) //FIXME get this from DB
-                .httpMethod(HttpRequestType.POST) //FIXME get this from DB
+                .eventStatus(EventStatus.valueOf(resultSet.getString("status")))
+                .httpMethod(HttpRequestType.valueOf(resultSet.getString("http_method"))) //FIXME get this from DB
                 .headers(headers)
                 .expiry(resultSet.getTimestamp("expiry"))
                 .build();

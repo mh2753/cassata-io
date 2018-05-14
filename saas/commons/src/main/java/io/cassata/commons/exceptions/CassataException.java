@@ -13,25 +13,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package io.cassata.commons.dal;
 
-import io.cassata.commons.models.Event;
-import io.cassata.commons.models.EventStatus;
+package io.cassata.commons.exceptions;
 
-import java.util.List;
+public class CassataException extends RuntimeException {
 
-public interface EventsTableDao {
+    public CassataException(Throwable t) {
+        super(t);
+    }
 
-    public void insertEvent(Event event);
+    public CassataException(String message, Throwable t) {
+        super(message, t);
+    }
 
-    public List<Event> fetchAndLockEventsToProcess(int count);
-
-    public Event getEventById(String appId, String eventId);
-
-    public void updateEventStatus(int eventId, EventStatus eventStatus);
-
-    public void batchUpdateStatus(String status, List<Integer> ids);
-
-    public int deleteEvent(String appId, String eventId);
-
+    public CassataException(String message) {
+        super(message);
+    }
 }

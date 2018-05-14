@@ -17,4 +17,5 @@
 package io.cassata.worker.core;
 
 public class CleanupThread {
+    //TODO Implement
 }

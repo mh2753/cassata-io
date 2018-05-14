@@ -45,6 +45,6 @@ public class AddEventProcessor {
                 .headers(addEventRequest.getHeaders())
                 .build();
 
-        this.eventsTableDao.insertEvent(event);
+        this.eventsTableDao.insertEvent(event); //FIXME handle SQL exception, duplicate exception etc.
     }
 }

@@ -25,3 +25,15 @@ logging:
       archivedFileCount: 5
       timeZone: UTC
       logFormat: 
+
+server:
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: ../logs/service-requests.log
+        threshold: ALL
+        archive: true
+        archivedLogFilenamePattern: ../logs/service-requests%d.log
+        archivedFileCount: 5
+        timeZone: UTC
+        logFormat: 

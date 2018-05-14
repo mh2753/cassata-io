@@ -19,23 +19,36 @@ package io.cassata.service.bootstrap;
 
 import io.cassata.commons.models.Event;
 import io.cassata.service.api.AddEventRequest;
+import io.cassata.service.http.response.BasicResponse;
 import io.cassata.service.processor.AddEventProcessor;
+import io.cassata.service.processor.DeleteEventProcessor;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
+@Produces(MediaType.APPLICATION_JSON)
 @Path("/cassata/")
 public class CassataServiceResource {
 
     private AddEventProcessor addEventProcessor;
+    private DeleteEventProcessor deleteEventProcessor;
 
-    public CassataServiceResource(AddEventProcessor addEventProcessor) {
+    public CassataServiceResource(AddEventProcessor addEventProcessor, DeleteEventProcessor deleteEventProcessor) {
         this.addEventProcessor = addEventProcessor;
+        this.deleteEventProcessor = deleteEventProcessor;
     }
 
     @POST
     @Path("add/")
     public void addEvent(AddEventRequest addEventRequest) {
+
+        //TODO return response.
         addEventProcessor.addEvent(addEventRequest);
+    }
+
+    @DELETE
+    @Path("delete/{appId}/{eventId}")
+    public BasicResponse deleteEvent(@PathParam("appId") String appId, @PathParam("eventId") String eventId) {
+        return deleteEventProcessor.deleteEvent(appId, eventId);
     }
 }
