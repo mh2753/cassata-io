@@ -16,6 +16,8 @@
 
 package io.cassata.service.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.cassata.commons.http.HttpRequestType;
 import io.cassata.commons.models.EventStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +32,10 @@ public class AddEventRequest {
     private String application;
 
     private String eventJson;
-    private String httpMethod; //TODO Replace this with an Enum
+
+    @JsonProperty("httpMethod")
+    private HttpRequestType httpMethod; //TODO Replace this with an Enum
+
     private List<String> headers;
     private String destinationUrl;
     private EventStatus eventStatus;

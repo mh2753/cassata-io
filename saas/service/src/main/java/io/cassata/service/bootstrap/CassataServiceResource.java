@@ -40,10 +40,10 @@ public class CassataServiceResource {
 
     @POST
     @Path("add/")
-    public void addEvent(AddEventRequest addEventRequest) {
+    public BasicResponse addEvent(AddEventRequest addEventRequest) {
 
         //TODO return response.
-        addEventProcessor.addEvent(addEventRequest);
+        return addEventProcessor.addEvent(addEventRequest);
     }
 
     @DELETE

@@ -56,7 +56,6 @@ public class Event {
 
         for (String header: headers) {
             String[] split = header.split(":");
-            System.out.println("Adding header: " + split[0] + " : " + split[1]);
             headerMap.put(split[0], split[1]);
         }
 

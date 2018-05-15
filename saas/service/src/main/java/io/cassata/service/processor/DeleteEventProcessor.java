@@ -34,27 +34,34 @@ public class DeleteEventProcessor {
 
     public BasicResponse deleteEvent(String appId, String eventId) {
 
-        log.info("Received delete event request for appId: {}, eventId: {}", appId, eventId);
-
-        int numRowsDeleted = eventsTableDao.deleteEvent(appId, eventId); //FIXME Handle SQL exceptions
-
         BasicResponse response = new BasicResponse();
+        try {
 
-        if (numRowsDeleted == 0) {
-            Event event = eventsTableDao.getEventById(appId, eventId);
+            log.info("Received delete event request for appId: {}, eventId: {}", appId, eventId);
 
-            if (event == null) {
-                log.info("No event found for appid: {} and eventId: {}", appId, eventId);
-                response.setStatus("failed");
-                response.setMessage("event not found");
+            int numRowsDeleted = eventsTableDao.deleteEvent(appId, eventId); //FIXME Handle SQL exceptions
+
+
+            if (numRowsDeleted == 0) {
+                Event event = eventsTableDao.getEventById(appId, eventId);
+
+                if (event == null) {
+                    log.info("No event found for appid: {} and eventId: {}", appId, eventId);
+                    response.setStatus(BasicResponse.StatusCode.failed);
+                    response.setMessage("event not found");
+                } else {
+                    log.info("Unable to delete event for appId: {}, eventId: {} as status is {}", appId, eventId, event.getEventStatus());
+                    response.setStatus(BasicResponse.StatusCode.failed);
+                    response.setMessage("event in status " + event.getEventStatus() + ". Cannot be deleted.");
+                }
             } else {
-                log.info("Unable to delete event for appId: {}, eventId: {} as status is {}", appId, eventId, event.getEventStatus());
-                response.setStatus("failed");
-                response.setMessage("event in status " + event.getEventStatus() + ". Cannot be deleted.");
+                response.setStatus(BasicResponse.StatusCode.ok);
+                log.info("Event successfully deleted fr appId: {}, eventId: {}", appId, eventId);
             }
-        } else {
-            response.setStatus("ok");
-            log.info("Event successfully deleted fr appId: {}, eventId: {}", appId, eventId);
+        } catch (Exception e) {
+            log.error("Exception in executing delete request for appId: " + appId + ", eventId:" + eventId, e);
+            response.setStatus(BasicResponse.StatusCode.failed);
+            response.setMessage("Internal Server Error while handling the request");
         }
 
         return response;
