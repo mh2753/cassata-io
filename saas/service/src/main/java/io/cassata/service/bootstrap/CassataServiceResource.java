@@ -22,12 +22,14 @@ import io.cassata.service.api.AddEventRequest;
 import io.cassata.service.http.response.BasicResponse;
 import io.cassata.service.processor.AddEventProcessor;
 import io.cassata.service.processor.DeleteEventProcessor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/cassata/")
+@Slf4j
 public class CassataServiceResource {
 
     private AddEventProcessor addEventProcessor;
@@ -50,5 +52,11 @@ public class CassataServiceResource {
     @Path("delete/{appId}/{eventId}")
     public BasicResponse deleteEvent(@PathParam("appId") String appId, @PathParam("eventId") String eventId) {
         return deleteEventProcessor.deleteEvent(appId, eventId);
+    }
+
+    @POST
+    @Path("_test")
+    public void testApi() {
+        log.info("Received test request");
     }
 }

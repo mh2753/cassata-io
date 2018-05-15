@@ -61,6 +61,7 @@ public class AddEventProcessor {
         try {
             this.eventsTableDao.insertEvent(event);
 
+            log.info("Event added successfully for appId: {}, eventId: {}", event.getApplication(), event.getEventId());
             response.setStatus(BasicResponse.StatusCode.ok);
 
         } catch (UnableToExecuteStatementException e)  {

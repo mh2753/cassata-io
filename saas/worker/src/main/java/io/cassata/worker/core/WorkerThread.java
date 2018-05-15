@@ -17,16 +17,14 @@
 package io.cassata.worker.core;
 
 import io.cassata.commons.dal.EventsTableDao;
-import io.cassata.commons.http.HttpRequestWrapper;
-import io.cassata.commons.http.HttpResponse;
 import io.cassata.commons.models.Event;
-import io.cassata.commons.models.EventStatus;
-import oracle.jrockit.jfr.openmbean.EventSettingType;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+@Slf4j
 public class WorkerThread implements Runnable {
 
     private EventsTableDao eventsTableDao;
@@ -42,7 +40,10 @@ public class WorkerThread implements Runnable {
 
         List<Event> eventList = eventsTableDao.fetchAndLockEventsToProcess(batchSize);
 
+
         while (eventList.size() > 0) {
+            log.info("Received {} events from DB to process.", eventList.size());
+
             List<Callable<Void>> eventProcessors = new ArrayList<Callable<Void>>();
             for (Event event: eventList) {
                 eventProcessors.add(new EventProcessor(event, 5, eventsTableDao));
@@ -53,9 +54,13 @@ public class WorkerThread implements Runnable {
                 List<Future<Void>> futures = executorService.invokeAll(eventProcessors);
 
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error("Exception while executing event processors", e);
             }
 
+
+            eventList = eventsTableDao.fetchAndLockEventsToProcess(batchSize);
         }
+
+        log.info("All pending events processed.");
     }
 }

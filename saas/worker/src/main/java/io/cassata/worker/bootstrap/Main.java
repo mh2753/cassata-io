@@ -21,6 +21,7 @@ import com.google.inject.Injector;
 import io.cassata.commons.bootstrap.DatabaseModule;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.worker.core.WorkerThread;
+import lombok.extern.slf4j.Slf4j;
 import org.skife.jdbi.v2.DBI;
 
 import java.util.ArrayList;
@@ -30,14 +31,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class Main {
 
     private static int threadPoolSize = 5; //FIXME Get from Guice
     private static int threadSchedulingPeriod = 10; //FIXME get from Guice
     private static final int INITIAL_DELAY_BOUND = 10;
 
+
     public static void main(String[] args) {
 
+        //TODO get from guice
         DBI dbi = new DBI("jdbc:mysql://localhost:3306/cassata", "rw", "password123");
         Injector injector = Guice.createInjector(new DatabaseModule(dbi));
 
