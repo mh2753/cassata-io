@@ -16,6 +16,7 @@
 
 package io.cassata.service.processor;
 
+import com.google.inject.Inject;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.http.HttpRequestType;
@@ -33,11 +34,10 @@ import java.sql.Timestamp;
 public class AddEventProcessor {
 
     private static final int MYSQL_DUPLICATE_ENTRY_ERROR_CODE = 1062;
+
+    @Inject
     private EventsTableDao eventsTableDao;
 
-    public AddEventProcessor(EventsTableDao eventsTableDao) {
-        this.eventsTableDao = eventsTableDao;
-    }
 
     public BasicResponse addEvent(AddEventRequest addEventRequest) {
 

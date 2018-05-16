@@ -18,7 +18,7 @@ package io.cassata.worker.bootstrap;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import io.cassata.commons.bootstrap.DatabaseModule;
+import io.cassata.commons.bootstrap.DataAccessLayerModule;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.worker.core.WorkerThread;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,7 @@ public class Main {
 
         //TODO get from guice
         DBI dbi = new DBI("jdbc:mysql://localhost:3306/cassata", "rw", "password123");
-        Injector injector = Guice.createInjector(new DatabaseModule(dbi));
+        Injector injector = Guice.createInjector(new DataAccessLayerModule(dbi));
 
         EventsTableDao eventsTableDao = injector.getInstance(EventsTableDao.class);
 

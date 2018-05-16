@@ -17,6 +17,7 @@
 package io.cassata.service.bootstrap;
 
 
+import com.google.inject.Inject;
 import io.cassata.commons.models.Event;
 import io.cassata.service.api.AddEventRequest;
 import io.cassata.service.http.response.BasicResponse;
@@ -32,19 +33,16 @@ import javax.ws.rs.core.MediaType;
 @Slf4j
 public class CassataServiceResource {
 
+    @Inject
     private AddEventProcessor addEventProcessor;
-    private DeleteEventProcessor deleteEventProcessor;
 
-    public CassataServiceResource(AddEventProcessor addEventProcessor, DeleteEventProcessor deleteEventProcessor) {
-        this.addEventProcessor = addEventProcessor;
-        this.deleteEventProcessor = deleteEventProcessor;
-    }
+    @Inject
+    private DeleteEventProcessor deleteEventProcessor;
 
     @POST
     @Path("add/")
     public BasicResponse addEvent(AddEventRequest addEventRequest) {
 
-        //TODO return response.
         return addEventProcessor.addEvent(addEventRequest);
     }
 

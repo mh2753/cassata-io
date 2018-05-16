@@ -15,12 +15,10 @@
  */
 package io.cassata.service.bootstrap;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import io.cassata.commons.bootstrap.DatabaseModule;
-import io.cassata.commons.models.Event;
-import io.cassata.commons.models.EventStatus;
+import io.cassata.commons.bootstrap.DataAccessLayerModule;
+import io.cassata.commons.bootstrap.DatabaseTypes;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.service.processor.AddEventProcessor;
 import io.cassata.service.processor.DeleteEventProcessor;
@@ -29,10 +27,6 @@ import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import org.skife.jdbi.v2.DBI;
-
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
 
 @Slf4j
 public class CassataServiceApplication extends Application<CassataServiceConfiguration> {
@@ -50,15 +44,15 @@ public class CassataServiceApplication extends Application<CassataServiceConfigu
 
         final DBIFactory factory = new DBIFactory();
 
-        final DBI dbi = factory.build(environment, cassataServiceConfiguration.getDataSourceFactory(), "mysql");
+        //Get the DB type for the JDBC Url. I hope there is a better way of doing this
+        String []urlParts = cassataServiceConfiguration.getDataSourceFactory().getUrl().split(":");
+        String dbType = urlParts[1];
 
-        Injector injector = Guice.createInjector(new DatabaseModule(dbi));
+        final DBI dbi = factory.build(environment, cassataServiceConfiguration.getDataSourceFactory(), dbType);
 
-        EventsTableDao eventsTableDao = injector.getInstance(EventsTableDao.class);
-        AddEventProcessor addEventProcessor = new AddEventProcessor(eventsTableDao);
-        DeleteEventProcessor deleteEventProcessor = new DeleteEventProcessor(eventsTableDao);
+        Injector injector = Guice.createInjector(new DataAccessLayerModule(dbi, DatabaseTypes.fromString(dbType)));
 
-        CassataServiceResource resource = new CassataServiceResource(addEventProcessor, deleteEventProcessor);
+        CassataServiceResource resource = injector.getInstance(CassataServiceResource.class);
         environment.jersey().register(resource);
     }
 }

@@ -16,6 +16,7 @@
 
 package io.cassata.service.processor;
 
+import com.google.inject.Inject;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.models.Event;
 import io.cassata.service.http.response.BasicResponse;
@@ -26,11 +27,8 @@ import javax.sql.rowset.BaseRowSet;
 @Slf4j
 public class DeleteEventProcessor {
 
+    @Inject
     private EventsTableDao eventsTableDao;
-
-    public DeleteEventProcessor(EventsTableDao eventsTableDao) {
-        this.eventsTableDao = eventsTableDao;
-    }
 
     public BasicResponse deleteEvent(String appId, String eventId) {
 

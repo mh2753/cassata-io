@@ -94,11 +94,8 @@ public class HttpRequestWrapper {
             while ((line = rd.readLine()) != null) {
                 response.append(line);
                 response.append('\r');
-                System.out.println(response);  //FIXME Remove
             }
             String responseString = response.toString();
-
-            System.out.println("POST REQUEST RESPONSE: " + responseString);//FIXME Remove
 
             return new HttpResponse(responseString, httpURLConnection.getResponseCode());
         } catch (Exception e) {

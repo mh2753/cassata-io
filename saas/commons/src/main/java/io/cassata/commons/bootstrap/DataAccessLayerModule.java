@@ -17,52 +17,36 @@
 package io.cassata.commons.bootstrap;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.dal.MySQLEventsTableDao;
 import org.skife.jdbi.v2.DBI;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+public class DataAccessLayerModule extends AbstractModule {
 
-public class DatabaseModule extends AbstractModule {
-
-    private Properties properties;
     private static DBI dbi;
+    private static DatabaseTypes dbType;
 
-    public DatabaseModule(DBI dbi) {
-        this.dbi = dbi;
+    public DataAccessLayerModule(DBI dbi, DatabaseTypes dbType) {
+        DataAccessLayerModule.dbi = dbi;
+        DataAccessLayerModule.dbType = dbType;
     }
 
     protected void configure() {
 
-        properties = new Properties();
-        try {
-            properties.load(new FileInputStream("db.properties"));
-
-        } catch (IOException e) {
-        }
-
         bind(EventsTableDao.class).toProvider(EventsTableDAOProvider.class);
     }
-
-//    public static class DBIProvider implements Provider<DBI> {
-//
-//        public DBI get() {
-//
-//            String connectionString = "jdbc:mysql://localhost:3306/cassata";
-//            DBI dbi = new DBI(connectionString, "rw", "password123");
-//
-//            return dbi;
-//        }
-//    }
 
     public static class EventsTableDAOProvider implements Provider<EventsTableDao> {
 
         public EventsTableDao get() {
-            return dbi.onDemand(MySQLEventsTableDao.class); //TODO add postgres here
+
+            //TODO add postgres here
+            if (dbType.equals(DatabaseTypes.MYSQL)) {
+                return dbi.onDemand(MySQLEventsTableDao.class);
+            } else {
+                throw new IllegalArgumentException("Unsupported Database type: " + dbType.name());
+            }
         }
     }
 }
