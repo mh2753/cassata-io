@@ -18,9 +18,14 @@ package io.cassata.worker.bootstrap;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import io.cassata.commons.bootstrap.DataAccessLayerModule;
+import io.cassata.commons.bootstrap.DatabaseTypes;
 import io.cassata.commons.dal.EventsTableDao;
+import io.cassata.worker.core.CassataWorker;
 import io.cassata.worker.core.WorkerThread;
+import io.cassata.worker.guice.WorkerThreadModule;
 import lombok.extern.slf4j.Slf4j;
 import org.skife.jdbi.v2.DBI;
 
@@ -34,29 +39,12 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class Main {
 
-    private static int threadPoolSize = 5; //FIXME Get from Guice
-    private static int threadSchedulingPeriod = 10; //FIXME get from Guice
-    private static final int INITIAL_DELAY_BOUND = 10;
-
-
     public static void main(String[] args) {
 
-        //TODO get from guice
-        DBI dbi = new DBI("jdbc:mysql://localhost:3306/cassata", "rw", "password123");
-        Injector injector = Guice.createInjector(new DataAccessLayerModule(dbi));
+        Injector injector = Guice.createInjector(new WorkerThreadModule());
 
-        EventsTableDao eventsTableDao = injector.getInstance(EventsTableDao.class);
+        CassataWorker cassataWorker = injector.getInstance(CassataWorker.class);
 
-        ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(threadPoolSize);
-
-        //FIXME Move this to guice
-        List<WorkerThread> workerThreads = new ArrayList<WorkerThread>();
-        workerThreads.add(new WorkerThread(eventsTableDao));
-
-        Random rand = new Random();
-
-        for (WorkerThread workerThread: workerThreads) {
-            scheduledPool.scheduleAtFixedRate(workerThread, rand.nextInt(INITIAL_DELAY_BOUND), threadSchedulingPeriod, TimeUnit.SECONDS);
-        }
+        cassataWorker.run();
     }
 }

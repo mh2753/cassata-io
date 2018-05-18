@@ -21,22 +21,18 @@ import io.cassata.commons.http.HttpRequestWrapper;
 import io.cassata.commons.http.HttpResponse;
 import io.cassata.commons.models.Event;
 import io.cassata.commons.models.EventStatus;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.Callable;
 
 @Slf4j
+@Setter
 public class EventProcessor implements Callable<Void> {
 
     private Event event;
     private int retryCount;
     private EventsTableDao eventsTableDao;
-
-    public EventProcessor(Event event, int retryCount, EventsTableDao eventsTableDao) {
-        this.event = event;
-        this.retryCount = retryCount;
-        this.eventsTableDao = eventsTableDao;
-    }
 
     public Void call() throws Exception {
 

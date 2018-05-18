@@ -28,12 +28,15 @@ import java.util.concurrent.*;
 public class WorkerThread implements Runnable {
 
     private EventsTableDao eventsTableDao;
-    private int batchSize = 5;
+    private int batchSize;
     private ExecutorService executorService;
+    private EventProcessorFactory eventProcessorFactory;
 
-    public WorkerThread(EventsTableDao eventsTableDao) {
+    public WorkerThread(EventProcessorFactory eventProcessorFactory, EventsTableDao eventsTableDao, int batchSize) {
         this.eventsTableDao = eventsTableDao;
+        this.batchSize = batchSize;
         this.executorService = Executors.newFixedThreadPool(batchSize);
+        this.eventProcessorFactory = eventProcessorFactory;
     }
 
     public void run() {
@@ -46,7 +49,7 @@ public class WorkerThread implements Runnable {
 
             List<Callable<Void>> eventProcessors = new ArrayList<Callable<Void>>();
             for (Event event: eventList) {
-                eventProcessors.add(new EventProcessor(event, 5, eventsTableDao));
+                eventProcessors.add(eventProcessorFactory.getEventProcessor(event));
             }
 
             try {
