@@ -17,6 +17,7 @@
 package io.cassata.commons.bootstrap;
 
 public enum DatabaseTypes {
+    DERBY,
     MYSQL;
 
     public static DatabaseTypes fromString(String value) {

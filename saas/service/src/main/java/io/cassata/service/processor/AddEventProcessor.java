@@ -68,6 +68,7 @@ public class AddEventProcessor {
 
             response.setStatus(BasicResponse.StatusCode.failed);
             response.setMessage("Internal Server Error while executing the request");
+            log.error("Exception in adding event to DB.", e);
 
             //FIXME Is there a better way of doing this?
             if (e.getCause() instanceof  SQLException) {

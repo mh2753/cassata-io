@@ -21,4 +21,5 @@ import lombok.Data;
 @Data
 public class ServiceConfig {
     private int port;
+    private boolean createTablesIfNotExists;
 }

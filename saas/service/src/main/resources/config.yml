@@ -13,6 +13,7 @@ database:
 
 service:
     port: 8088
+    createTablesIfNotExists: true
 
 logging:
   level: INFO

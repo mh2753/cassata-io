@@ -18,31 +18,43 @@ package io.cassata.commons.bootstrap;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
+import io.cassata.commons.bootstrap.configurations.ServiceConfig;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.dal.MySQLEventsTableDao;
+import io.cassata.commons.dal.databaseBuilder.MySQLDatabaseBuilder;
 import org.skife.jdbi.v2.DBI;
 
 public class DataAccessLayerModule extends AbstractModule {
 
     private static DBI dbi;
     private static DatabaseTypes dbType;
+    private static ServiceConfig serviceConfig;
 
-    public DataAccessLayerModule(DBI dbi, DatabaseTypes dbType) {
+    public DataAccessLayerModule(ServiceConfig serviceConfig, DBI dbi, DatabaseTypes dbType) {
         DataAccessLayerModule.dbi = dbi;
         DataAccessLayerModule.dbType = dbType;
+        DataAccessLayerModule.serviceConfig = serviceConfig;
     }
 
     protected void configure() {
 
+        if (dbType.equals(DatabaseTypes.MYSQL)) {
+            MySQLDatabaseBuilder mySQLDatabaseBuilder = new MySQLDatabaseBuilder(dbi, serviceConfig);
+            mySQLDatabaseBuilder.build();
+        }
+
         bind(EventsTableDao.class).toProvider(EventsTableDAOProvider.class);
     }
 
+    @Singleton
     public static class EventsTableDAOProvider implements Provider<EventsTableDao> {
 
         public EventsTableDao get() {
 
             //TODO add postgres here
             if (dbType.equals(DatabaseTypes.MYSQL)) {
+
                 return dbi.onDemand(MySQLEventsTableDao.class);
             } else {
                 throw new IllegalArgumentException("Unsupported Database type: " + dbType.name());

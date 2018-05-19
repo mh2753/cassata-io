@@ -50,7 +50,7 @@ public class CassataServiceApplication extends Application<CassataServiceConfigu
 
         final DBI dbi = factory.build(environment, cassataServiceConfiguration.getDataSourceFactory(), dbType);
 
-        Injector injector = Guice.createInjector(new DataAccessLayerModule(dbi, DatabaseTypes.fromString(dbType)));
+        Injector injector = Guice.createInjector(new DataAccessLayerModule(cassataServiceConfiguration.getServiceConfig(), dbi, DatabaseTypes.fromString(dbType)));
 
         CassataServiceResource resource = injector.getInstance(CassataServiceResource.class);
         environment.jersey().register(resource);
