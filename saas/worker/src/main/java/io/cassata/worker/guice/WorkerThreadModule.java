@@ -16,6 +16,8 @@
 
 package io.cassata.worker.guice;
 
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.inject.*;
@@ -63,6 +65,11 @@ public class WorkerThreadModule extends AbstractModule {
         bind(EventProcessorFactory.class).toProvider(EventProcessorFactoryProvider.class);
 
         bind(CassataWorker.class).toProvider(CassataWorkerProvider.class);
+
+        MetricRegistry metrics = new MetricRegistry();
+        JmxReporter jmxReporter = JmxReporter.forRegistry(metrics).build();
+        bind(MetricRegistry.class).toInstance(metrics);
+        bind(JmxReporter.class).toInstance(jmxReporter);
     }
 
     private static class EventProcessorFactoryProvider implements Provider<EventProcessorFactory> {
@@ -70,8 +77,11 @@ public class WorkerThreadModule extends AbstractModule {
         @Inject
         EventsTableDao eventsTableDao;
 
+        @Inject
+        MetricRegistry metricRegistry;
+
         public EventProcessorFactory get() {
-            EventProcessorFactory eventProcessorFactory = new EventProcessorFactory();
+            EventProcessorFactory eventProcessorFactory = new EventProcessorFactory(metricRegistry);
             eventProcessorFactory.setEventsTableDao(eventsTableDao);
             eventProcessorFactory.setRetryCount(workerConfiguration.getWorkerThreadProperties().getHttpRetryCount());
 

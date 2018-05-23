@@ -17,6 +17,7 @@
 package io.cassata.service.bootstrap;
 
 
+import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import io.cassata.commons.models.Event;
 import io.cassata.service.api.AddEventRequest;
@@ -41,12 +42,14 @@ public class CassataServiceResource {
 
     @POST
     @Path("add/")
+    @Timed
     public BasicResponse addEvent(AddEventRequest addEventRequest) {
 
         return addEventProcessor.addEvent(addEventRequest);
     }
 
     @DELETE
+    @Timed
     @Path("delete/{appId}/{eventId}")
     public BasicResponse deleteEvent(@PathParam("appId") String appId, @PathParam("eventId") String eventId) {
         return deleteEventProcessor.deleteEvent(appId, eventId);

@@ -32,16 +32,22 @@ public class DataAccessLayerModule extends AbstractModule {
     private static ServiceConfig serviceConfig;
 
     public DataAccessLayerModule(ServiceConfig serviceConfig, DBI dbi, DatabaseTypes dbType) {
+        this(dbi, dbType);
+        DataAccessLayerModule.serviceConfig = serviceConfig;
+    }
+
+    public DataAccessLayerModule(DBI dbi, DatabaseTypes dbType) {
         DataAccessLayerModule.dbi = dbi;
         DataAccessLayerModule.dbType = dbType;
-        DataAccessLayerModule.serviceConfig = serviceConfig;
     }
 
     protected void configure() {
 
-        if (dbType.equals(DatabaseTypes.MYSQL)) {
-            MySQLDatabaseBuilder mySQLDatabaseBuilder = new MySQLDatabaseBuilder(dbi, serviceConfig);
-            mySQLDatabaseBuilder.build();
+        if (serviceConfig != null) {
+            if (dbType.equals(DatabaseTypes.MYSQL)) {
+                MySQLDatabaseBuilder mySQLDatabaseBuilder = new MySQLDatabaseBuilder(dbi, serviceConfig);
+                mySQLDatabaseBuilder.build();
+            }
         }
 
         bind(EventsTableDao.class).toProvider(EventsTableDAOProvider.class);

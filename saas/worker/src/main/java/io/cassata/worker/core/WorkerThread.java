@@ -16,6 +16,9 @@
 
 package io.cassata.worker.core;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.models.Event;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,7 @@ import java.util.concurrent.*;
 
 @Slf4j
 public class WorkerThread implements Runnable {
+
 
     private EventsTableDao eventsTableDao;
     private int batchSize;

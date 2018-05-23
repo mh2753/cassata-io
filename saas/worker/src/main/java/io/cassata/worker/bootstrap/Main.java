@@ -16,6 +16,7 @@
 
 package io.cassata.worker.bootstrap;
 
+import com.codahale.metrics.JmxReporter;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -44,6 +45,9 @@ public class Main {
         Injector injector = Guice.createInjector(new WorkerThreadModule());
 
         CassataWorker cassataWorker = injector.getInstance(CassataWorker.class);
+
+        JmxReporter jmxReporter = injector.getInstance(JmxReporter.class);
+        jmxReporter.start();
 
         cassataWorker.run();
     }

@@ -16,6 +16,7 @@
 
 package io.cassata.worker.core;
 
+import com.codahale.metrics.Meter;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.http.HttpRequestWrapper;
 import io.cassata.commons.http.HttpResponse;
@@ -34,9 +35,14 @@ public class EventProcessor implements Callable<Void> {
     private int retryCount;
     private EventsTableDao eventsTableDao;
 
+    private Meter numRequests;
+    private Meter failedRequests;
+    private Meter completedRequests;
+
     public Void call() throws Exception {
 
         log.info("Processing Event with id: {}, App Id: {}, Event Id: {}", event.getId(), event.getApplication(), event.getEventId());
+        numRequests.mark();
 
         int retries = 0;
         while (++retries <= retryCount) {
@@ -52,27 +58,32 @@ public class EventProcessor implements Callable<Void> {
 
                     log.info("Request completed successfully. Marking event Id: {} to completed.", event.getId());
                     eventsTableDao.updateEventStatus(event.getId(), EventStatus.COMPLETED);
+                    completedRequests.mark();
                     return (null);
 
                 } if (response.getResponseCode() >= 500) {
 
                     //Service error, retry
+                    //FIXME Add exponential backoff
                     log.warn("Received error response from service: {}. Retrying.", response.getResponseString());
                 } else {
 
                     log.error("Irrecoverable error in executing the event id: {}. Marking as failed in DB", event.getId());
                     eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
+                    failedRequests.mark();
                     return (null);
                 }
             } catch (Exception e) {
                 log.error("Exception in calling service. Marking event as failed in DB", e);
                 eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
+                failedRequests.mark();
                 return (null);
             }
         }
 
         log.error("Unable to execute event after {} retries. Marking the event with Id: {} as failed in DB", retries, event.getId());
         eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
+        failedRequests.mark();
         return (null);
     }
 
