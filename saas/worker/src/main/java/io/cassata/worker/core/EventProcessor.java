@@ -44,6 +44,14 @@ public class EventProcessor implements Callable<Void> {
         log.info("Processing Event with id: {}, App Id: {}, Event Id: {}", event.getId(), event.getApplication(), event.getEventId());
         numRequests.mark();
 
+        //FIXME REMOVE IN PRODUCTION
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        /////////////////////////////
+
         int retries = 0;
         while (++retries <= retryCount) {
             try {

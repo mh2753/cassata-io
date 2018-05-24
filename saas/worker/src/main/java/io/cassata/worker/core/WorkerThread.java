@@ -36,11 +36,14 @@ public class WorkerThread implements Runnable {
     private ExecutorService executorService;
     private EventProcessorFactory eventProcessorFactory;
 
+    private boolean isShutDown;
+
     public WorkerThread(EventProcessorFactory eventProcessorFactory, EventsTableDao eventsTableDao, int batchSize) {
         this.eventsTableDao = eventsTableDao;
         this.batchSize = batchSize;
         this.executorService = Executors.newFixedThreadPool(batchSize);
         this.eventProcessorFactory = eventProcessorFactory;
+        this.isShutDown = false;
     }
 
     public void run() {
@@ -48,7 +51,7 @@ public class WorkerThread implements Runnable {
         List<Event> eventList = eventsTableDao.fetchAndLockEventsToProcess(batchSize);
 
 
-        while (eventList.size() > 0) {
+        while (eventList.size() > 0 && !isShutDown) {
             log.info("Received {} events from DB to process.", eventList.size());
 
             List<Callable<Void>> eventProcessors = new ArrayList<Callable<Void>>();
@@ -64,10 +67,16 @@ public class WorkerThread implements Runnable {
                 log.error("Exception while executing event processors", e);
             }
 
-
             eventList = eventsTableDao.fetchAndLockEventsToProcess(batchSize);
         }
 
-        log.info("All pending events processed.");
+        if (!isShutDown) {
+            log.info("All pending events processed.");
+        }
+    }
+
+    public void shutDown() {
+        log.info("Received shutdown signal. Will commence shutdown");
+        this.isShutDown = true;
     }
 }

@@ -17,6 +17,7 @@
 package io.cassata.worker.core;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Random;
@@ -24,8 +25,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Setter
+@Slf4j
 public class CassataWorker {
-
 
     private List<WorkerThread> workerThreads;
     private int workerThreadPollingInterval;
@@ -38,5 +39,35 @@ public class CassataWorker {
         for (WorkerThread workerThread: workerThreads) {
             scheduledExecutorService.scheduleAtFixedRate(workerThread, INITIAL_DELAY, workerThreadPollingInterval, TimeUnit.SECONDS);
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            public void run() {
+                log.info("Shutdown called. Asking all threads to stop and waiting for 5 seconds...");
+                scheduledExecutorService.shutdown();
+
+                try {
+                    scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS);
+
+                } catch (InterruptedException e) {
+                    log.error("Shutdown interrupted", e);
+                }
+
+                log.info("Executor service stopped. Calling shutdown on Worker threads");
+                for (WorkerThread workerThread: workerThreads) {
+                    workerThread.shutDown();
+                }
+
+                log.info("Waiting for 10 seconds for all requests to complete.");
+
+                try {
+                    Thread.sleep(1000 * 10);
+                } catch (InterruptedException e) {
+                    log.error("Interrupted", e);
+                }
+
+                log.info("Shutting Down Worker!");
+            }
+        }));
+
     }
 }
