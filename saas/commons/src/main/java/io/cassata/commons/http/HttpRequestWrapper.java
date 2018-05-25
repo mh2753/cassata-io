@@ -20,10 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,7 +72,7 @@ public class HttpRequestWrapper {
         }
     }
 
-    public HttpResponse execute(String body) {
+    public HttpResponse execute(String body) throws ConnectException {
         for (Map.Entry<String, String> entry: headers.entrySet()) {
             httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
         }
@@ -98,6 +95,8 @@ public class HttpRequestWrapper {
             String responseString = response.toString();
 
             return new HttpResponse(responseString, httpURLConnection.getResponseCode());
+        } catch (ConnectException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Unable to connect to server", e);
         } finally {
@@ -107,7 +106,7 @@ public class HttpRequestWrapper {
         }
     }
 
-    public HttpResponse execute(Object requestObject) {
+    public HttpResponse execute(Object requestObject) throws ConnectException {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String body = null;

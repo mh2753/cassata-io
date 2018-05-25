@@ -25,6 +25,7 @@ import io.cassata.commons.models.EventStatus;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.ConnectException;
 import java.util.concurrent.Callable;
 
 @Slf4j
@@ -43,6 +44,8 @@ public class EventProcessor implements Callable<Void> {
 
         log.info("Processing Event with id: {}, App Id: {}, Event Id: {}", event.getId(), event.getApplication(), event.getEventId());
         numRequests.mark();
+
+        int waitTime = 100;
 
         //FIXME REMOVE IN PRODUCTION
         try {
@@ -69,20 +72,42 @@ public class EventProcessor implements Callable<Void> {
                     completedRequests.mark();
                     return (null);
 
-                } if (response.getResponseCode() >= 500) {
+                }
+                if (response.getResponseCode() >= 500) {
 
-                    //Service error, retry
-                    //FIXME Add exponential backoff
+                    try {
+                        Thread.sleep(waitTime);
+                    } catch (InterruptedException e) {
+                        log.warn("Sleep interrupted", e);
+                    }
+
+                    waitTime *= 2;
+
                     log.warn("Received error response from service: {}. Retrying.", response.getResponseString());
                 } else {
 
-                    log.error("Irrecoverable error in executing the event id: {}. Marking as failed in DB", event.getId());
+                    log.error("Irrecoverable error in executing the event id: {}. Marking as failed in DB. Response Code: {}, Response Body: {}",
+                            event.getId(),
+                            response.getResponseCode(),
+                            response.getResponseString());
+
                     eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
                     failedRequests.mark();
                     return (null);
                 }
+            } catch (ConnectException e) {
+
+                log.error("Connect Exception in calling service.", e);
+
+                try {
+                    Thread.sleep(waitTime);
+                } catch (InterruptedException e1) {
+                    log.warn("Sleep interrupted", e1);
+                }
+
+                waitTime *= 2;
             } catch (Exception e) {
-                log.error("Exception in calling service. Marking event as failed in DB", e);
+                log.error("Exception in calling service. Marking request as failed", e);
                 eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
                 failedRequests.mark();
                 return (null);
