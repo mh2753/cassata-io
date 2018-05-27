@@ -21,7 +21,9 @@ import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.models.Event;
+import io.cassata.commons.models.EventStatus;
 import lombok.extern.slf4j.Slf4j;
+import org.omg.PortableInterceptor.INACTIVE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +74,13 @@ public class WorkerThread implements Runnable {
 
         if (!isShutDown) {
             log.info("All pending events processed.");
+        } else if (eventList.size() > 0) {
+            List<Integer> eventIds = new ArrayList<Integer>();
+            for (Event event: eventList) {
+                eventIds.add(event.getId());
+            }
+
+            eventsTableDao.batchUpdateStatus(EventStatus.PENDING.name(), eventIds);
         }
     }
 

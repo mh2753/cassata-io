@@ -25,10 +25,7 @@ import com.google.inject.name.Names;
 import io.cassata.commons.bootstrap.DataAccessLayerModule;
 import io.cassata.commons.bootstrap.DatabaseTypes;
 import io.cassata.commons.dal.EventsTableDao;
-import io.cassata.worker.core.CassataWorker;
-import io.cassata.worker.core.EventProcessor;
-import io.cassata.worker.core.EventProcessorFactory;
-import io.cassata.worker.core.WorkerThread;
+import io.cassata.worker.core.*;
 import org.skife.jdbi.v2.DBI;
 
 import java.io.File;
@@ -92,6 +89,8 @@ public class WorkerThreadModule extends AbstractModule {
     @Singleton
     private static class CassataWorkerProvider implements Provider<CassataWorker> {
 
+        private static final int NUM_CLEANUP_THREADS = 2;
+        private static final int CLEANUP_POLLING_INTERVAL = 100;
         @Inject
         EventsTableDao eventsTableDao;
 
@@ -110,10 +109,17 @@ public class WorkerThreadModule extends AbstractModule {
 
             ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(workerConfiguration.getWorkerThreadProperties().getNumWorkerThreads());
 
+            CleanupThread cleanupThread = new CleanupThread(eventsTableDao, workerConfiguration.getWorkerThreadProperties().getTimeToWaitBeforeCleanup());
+
+            ScheduledExecutorService cleanupScheduledPool = Executors.newScheduledThreadPool(NUM_CLEANUP_THREADS);
+
             CassataWorker cassataWorker = new CassataWorker();
             cassataWorker.setScheduledExecutorService(scheduledPool);
             cassataWorker.setWorkerThreadPollingInterval(workerConfiguration.getWorkerThreadProperties().getWorkerThreadPollingInterval());
             cassataWorker.setWorkerThreads(workerThreads);
+            cassataWorker.setCleanupThread(cleanupThread);
+            cassataWorker.setCleanupThreadExecutor(cleanupScheduledPool);
+            cassataWorker.setCleanupThreadPollingInterval(CLEANUP_POLLING_INTERVAL);
 
             return cassataWorker;
         }

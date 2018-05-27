@@ -29,17 +29,26 @@ import java.util.concurrent.TimeUnit;
 public class CassataWorker {
 
     private List<WorkerThread> workerThreads;
-    private int workerThreadPollingInterval;
     private ScheduledExecutorService scheduledExecutorService;
+    private int workerThreadPollingInterval;
+
+    private ScheduledExecutorService cleanupThreadExecutor;
+    private CleanupThread cleanupThread;
+    private int cleanupThreadPollingInterval;
 
     private static final int INITIAL_DELAY = 0;
 
     public void run() {
 
+        log.info("Scheduling worker threads");
         for (WorkerThread workerThread: workerThreads) {
             scheduledExecutorService.scheduleAtFixedRate(workerThread, INITIAL_DELAY, workerThreadPollingInterval, TimeUnit.SECONDS);
         }
 
+        log.info("Scheduling cleanup threads");
+        cleanupThreadExecutor.scheduleAtFixedRate(cleanupThread, INITIAL_DELAY, cleanupThreadPollingInterval, TimeUnit.SECONDS);
+
+        log.info("Registering shutdown hook");
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             public void run() {
                 log.info("Shutdown called. Asking all threads to stop and waiting for 5 seconds...");

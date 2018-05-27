@@ -16,6 +16,34 @@
 
 package io.cassata.worker.core;
 
-public class CleanupThread {
-    //TODO Implement
+import io.cassata.commons.dal.EventsTableDao;
+import io.cassata.commons.models.Event;
+import io.cassata.commons.models.EventStatus;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+
+@Slf4j
+public class CleanupThread implements  Runnable {
+    private EventsTableDao eventsTableDao;
+    private int timeToWaitForCleanup;
+
+    private static final int CLEANUP_LIMIT = 100;
+
+    public CleanupThread(EventsTableDao eventsTableDao, int timeToWaitForCleanup) {
+        this.eventsTableDao = eventsTableDao;
+        this.timeToWaitForCleanup = timeToWaitForCleanup;
+    }
+
+    public void run() {
+
+        List<Event> events = eventsTableDao.getDeadEvents(CLEANUP_LIMIT, timeToWaitForCleanup);
+        log.info("Running cleanup thread. Found {} events to clean up", events.size());
+
+        for (Event event: events) {
+            log.warn("Event id: {}, application: {} in processing state for more than {} seconds. Marking as Pending.", event.getId(), event.getApplication(), timeToWaitForCleanup);
+
+            eventsTableDao.updateEventStatus(event.getId(), EventStatus.PENDING);
+        }
+    }
 }

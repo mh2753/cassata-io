@@ -34,4 +34,6 @@ public interface EventsTableDao {
 
     public int deleteEvent(String appId, String eventId);
 
+    public List<Event> getDeadEvents(int limit, int gracePeriod);
+
 }

@@ -38,7 +38,7 @@ public abstract class MySQLEventsTableDao implements EventsTableDao {
     public abstract void insertEvent(@BindBean  Event event);
 
 
-    @SqlUpdate("Update _saas_events set status = :status where id = :event_id")
+    @SqlUpdate("Update _saas_events set status = :status, last_updated = now() where id = :event_id")
     public abstract void updateEventStatus(@Bind("event_id") int eventId, @Bind("status") EventStatus status);
 
     @RegisterMapper(EventMapper.class)
@@ -49,7 +49,7 @@ public abstract class MySQLEventsTableDao implements EventsTableDao {
             "FOR UPDATE")
     protected abstract List<Event> getNextEventsForUpdate(@Bind("count") int count);
 
-    @SqlUpdate("Update _saas_events set status = :status where id in (<ids>) ")
+    @SqlUpdate("Update _saas_events set status = :status, last_updated = now() where id in (<ids>) ")
     public abstract void batchUpdateStatus(@Bind("status") String status, @BindIn("ids") List<Integer> ids);
 
     @Transaction
@@ -73,4 +73,9 @@ public abstract class MySQLEventsTableDao implements EventsTableDao {
     @RegisterMapper(EventMapper.class)
     @SqlQuery("SELECT * FROM _saas_events where application = :appId and event_id = :eventId")
     public abstract Event getEventById(@Bind("appId") String appId, @Bind("eventId") String eventId);
+
+
+    @RegisterMapper(EventMapper.class)
+    @SqlQuery ("SELECT * FROM _saas_events where status = 'PROCESSING' AND TIME_TO_SEC(timediff(now(), last_updated)) > :grace_period limit :limit")
+    public abstract List<Event> getDeadEvents(@Bind("limit") int limit, @Bind("grace_period") int gracePeriod);
 }

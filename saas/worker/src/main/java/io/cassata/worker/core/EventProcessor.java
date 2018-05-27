@@ -45,18 +45,10 @@ public class EventProcessor implements Callable<Void> {
         log.info("Processing Event with id: {}, App Id: {}, Event Id: {}", event.getId(), event.getApplication(), event.getEventId());
         numRequests.mark();
 
-        int waitTime = 100;
-
-        //FIXME REMOVE IN PRODUCTION
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        /////////////////////////////
+        int waitTime = 500;
 
         int retries = 0;
-        while (++retries <= retryCount) {
+        while (++retries < retryCount) {
             try {
                 HttpRequestWrapper requestWrapper = new HttpRequestWrapper.Builder(event.getDestinationUrl())
                         .withRequestType(event.getHttpMethod())
@@ -114,7 +106,7 @@ public class EventProcessor implements Callable<Void> {
             }
         }
 
-        log.error("Unable to execute event after {} retries. Marking the event with Id: {} as failed in DB", retries, event.getId());
+        log.error("Unable to execute event after {} retries. Marking the event with Id: {} as failed in DB", retryCount, event.getId());
         eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
         failedRequests.mark();
         return (null);
