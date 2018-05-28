@@ -46,6 +46,7 @@
         <module>worker</module>
         <module>ui</module>
         <module>commons</module>
+        <module>builder</module>
     </modules>
 
 
