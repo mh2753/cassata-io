@@ -5,6 +5,8 @@ Cassata is a Simple, Persistent, Event Scheduler. At the most basic level, it fi
 
 Cassata is designed to be a standalone application, that can be managed and scaled independently of the services/applications using it. 
 
+Cassata can be used as a **Delay Queue** application behind an existing _Kafka_ or _RMQ_ to let them process events after a delay.
+
 ## Components 
 Cassata has three components: Service, Worker and the Datastore. 
 
@@ -39,12 +41,13 @@ Use the **/cassata/add/** POST API to schedule an event. The request object is:
 
 **Event**: An arbitrary JSON data that is sent to the destination at the time of event expiry.
 
-**Expiry**: The UNIX timestamp of the time when the event expires. 
+**Expiry**: The UNIX timestamp of the time when this event should be emitted by the worker.
 
 **URL**: URL of the destination to where the event will be sent. 
 
 **Method (Optional)**: The HTTP method to be used. (Optional, defaults to POST)
 
-**Request-Headers (Optional)**: Request headers to be sent along with the request. (Optional. Defaults to “Content-Type: application/json”)
+**Request-Headers (Optional)**: An array of request headers to be sent along with the http request. (Optional. Defaults to “Content-Type: application/json”)
 
-
+## Gotchas
+Like any other distributed application, Cassata does not (and cannot) guarentee an exactly once delivery. It provides an at least once guarentee of emitting an event. Hence it is the responsibility of the event consumer to manage de-duplication. 
