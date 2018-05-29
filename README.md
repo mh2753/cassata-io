@@ -16,8 +16,9 @@ Cassata has three components: Service, Worker and the Datastore.
 **Datastore** is an RDBMS database (currently MySQL and Postgres are supported) that is used to store the event and its metadata. 
 
 ## Service API
-###### Create Event
-Use the **/cassata/add/** POST API to schedule an event. The request object is:
+### Create Event
+###### POST
+**/cassata/add/** Schedule an Event. The request object is:
 
 ```json
 {
@@ -49,9 +50,18 @@ Use the **/cassata/add/** POST API to schedule an event. The request object is:
 
 **Http Request-Headers (Optional)**: An array of request headers to be sent along with the http request. (Optional. Defaults to “Content-Type: application/json”)
 
+### Delete Event
+###### GET
+**/cassata/delete/{appId}/{eventId}** Delete the event identified by _appId_ and _eventID_
+
+## Get Status
+###### GET
+**/cassata/status/{appId}/{eventId}** Get the status of event identified by _appId_ and _eventID_. Possible status are PENDING, PROCESSING, COMPLETED, FAILED.
+
+
 ## Gotchas
 Like any other distributed application, Cassata does not (and cannot) guarentee an exactly once delivery. It provides an at least once guarentee of emitting an event. Hence it is the responsibility of the event consumer to manage de-duplication. 
 
 ## Coming Soon 
 
-Support for Apache Derby (So you don't need an existing RDBMS).
+Support for Apache Derby.
