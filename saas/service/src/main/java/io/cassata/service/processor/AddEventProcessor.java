@@ -17,12 +17,10 @@
 package io.cassata.service.processor;
 
 import com.google.inject.Inject;
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import io.cassata.commons.dal.EventsTableDao;
-import io.cassata.commons.http.HttpRequestType;
 import io.cassata.commons.models.Event;
 import io.cassata.commons.models.EventStatus;
-import io.cassata.service.api.AddEventRequest;
+import io.cassata.service.http.request.AddEventRequest;
 import io.cassata.service.http.response.BasicResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;

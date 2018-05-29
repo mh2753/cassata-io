@@ -42,7 +42,7 @@ public class EventProcessor implements Callable<Void> {
 
     public Void call() throws Exception {
 
-        log.info("Processing Event with id: {}, App Id: {}, Event Id: {}", event.getId(), event.getApplication(), event.getEventId());
+        log.info("Processing App Id: {}, Event Id: {}", event.getApplication(), event.getEventId());
         numRequests.mark();
 
         int waitTime = 500;
@@ -59,13 +59,21 @@ public class EventProcessor implements Callable<Void> {
 
                 if (response.getResponseCode() < 300) {
 
-                    log.info("Request completed successfully. Marking event Id: {} to completed.", event.getId());
+                    log.info("App Id: {}, Event Id: {}. Request completed successfully. Marking event completed.",
+                            event.getApplication(),
+                            event.getEventId());
+
                     eventsTableDao.updateEventStatus(event.getId(), EventStatus.COMPLETED);
                     completedRequests.mark();
                     return (null);
 
                 }
                 if (response.getResponseCode() >= 500) {
+
+                    log.warn("App Id: {}, Event Id: {}. Received error response from service: {}. Retrying.",
+                            event.getApplication(),
+                            event.getEventId(),
+                            response.getResponseString());
 
                     try {
                         Thread.sleep(waitTime);
@@ -75,11 +83,11 @@ public class EventProcessor implements Callable<Void> {
 
                     waitTime *= 2;
 
-                    log.warn("Received error response from service: {}. Retrying.", response.getResponseString());
                 } else {
 
-                    log.error("Irrecoverable error in executing the event id: {}. Marking as failed in DB. Response Code: {}, Response Body: {}",
-                            event.getId(),
+                    log.error("App Id: {}, Event Id: {}. Irrecoverable error in service. Marking as failed in DB. Response Code: {}, Response Body: {}",
+                            event.getApplication(),
+                            event.getEventId(),
                             response.getResponseCode(),
                             response.getResponseString());
 
@@ -89,7 +97,7 @@ public class EventProcessor implements Callable<Void> {
                 }
             } catch (ConnectException e) {
 
-                log.error("Connect Exception in calling service.", e);
+                log.error("App Id: " + event.getApplication() + ". Event Id: " + event.getEventId() + ".Connect Exception in calling service.", e);
 
                 try {
                     Thread.sleep(waitTime);
@@ -106,7 +114,11 @@ public class EventProcessor implements Callable<Void> {
             }
         }
 
-        log.error("Unable to execute event after {} retries. Marking the event with Id: {} as failed in DB", retryCount, event.getId());
+        log.error("App Id: {}, Event Id: {}. Unable to execute event after {} retries. Marking the event as failed in DB",
+                event.getApplication(),
+                event.getEventId(),
+                retryCount, event.getId());
+
         eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
         failedRequests.mark();
         return (null);

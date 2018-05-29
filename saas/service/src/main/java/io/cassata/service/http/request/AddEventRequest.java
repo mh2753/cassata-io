@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package io.cassata.service.api;
+package io.cassata.service.http.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.cassata.commons.http.HttpRequestType;
