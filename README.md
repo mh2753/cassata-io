@@ -1,7 +1,9 @@
 # cassata-io
 
 ## Introduction 
-Cassata is a simple, persistent _Event Scheduler_. At the most basic level, it fires a given _Event_, at a given time, to a given URL. An _Event_ is just an arbitrary JSON defined by the user. Cassata can be used as a **Delay Queue** application behind an existing _Kafka_ or _RMQ_ to let them process events after a delay.
+Cassata is a simple, light-weight, persistent _Event Scheduler_. At the most basic level, it fires a given _Event_, at a given time, to a given URL. An _Event_ is just an arbitrary JSON defined by the user. 
+
+Cassata can be used as a **Delay Queue** application behind an existing _Kafka_ or _RMQ_ to let them process events after a delay.
 
 Cassata is designed as a Scheduler Service (as opposed to a library), that can be managed and scaled independently of the services/applications using it. 
 
@@ -57,6 +59,34 @@ Cassata has three components: Service, Worker and the Datastore.
 ## Get Status
 ###### GET
 **/cassata/status/{appId}/{eventId}** Get the status of event identified by _appId_ and _eventID_. Possible status are PENDING, PROCESSING, COMPLETED, FAILED.
+
+## Setup 
+
+Download the binary for Linux and Mac OS here and unzip it. 
+
+Edit the Service and Worker configurations in `$CASSATA_HOME/config` folder. 
+
+Go to `$CASSATA_HOME/bin` folder. 
+
+Start service with `./cassata service start`
+
+Start Worker with `./cassata worker start`
+
+
+## Configuration 
+### Service Configuration
+| Config        | Default           | Explanation  |
+| ------------- |:-------------:| -----|
+| port      | 8085 | The port that Service listens to. |
+| createTablesIfNotExists      | false      |   Create Tables in DBMS if they don't already exist. |
+
+### Worker Configuration 
+| Config        | Default           | Explanation  |
+| ------------- |:-------------:| -----|
+| numWorkerThreads      | 5 | Number of worker threads polling for expired events. |
+| workerThreadPollingInterval      | 10      |   Number of seconds a worker thread sleeps between each poll of the Datastore  |
+| numEventsProcessedPerTransaction      | 5      |   Number of expired events picked up by a Worker thread for processing.  |
+| httpRetryCount      | 5      |   Number of retries to the destination URL (in case of Connection Error or 5XX error) before marking the event as failure. |
 
 
 ## Gotchas
