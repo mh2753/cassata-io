@@ -90,6 +90,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
+                    <outputFile>target/\${project.artifactId}.jar</outputFile>
                     <createDependencyReducedPom>true</createDependencyReducedPom>
                     <filters>
                         <filter>

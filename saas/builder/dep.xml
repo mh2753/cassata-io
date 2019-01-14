@@ -20,7 +20,7 @@
         <directory>../service/target</directory>
         <outputDirectory>lib/</outputDirectory>
         <includes>
-            <include>service*.jar</include>
+            <include>service.jar</include>
         </includes>
     </fileSet>
     <fileSet>
@@ -41,7 +41,7 @@
         <directory>../worker/target</directory>
         <outputDirectory>lib/</outputDirectory>
         <includes>
-            <include>worker*.jar</include>
+            <include>worker.jar</include>
         </includes>
     </fileSet>
     <fileSet>
@@ -50,6 +50,13 @@
         <includes>
             <include>config.yaml</include>
             <include>logback.xml</include>
+        </includes>
+    </fileSet>
+    <fileSet>
+        <directory>../scripts/</directory>
+        <outputDirectory>bin/</outputDirectory>
+        <includes>
+            <include>start.sh</include>
         </includes>
     </fileSet>
     <fileSet>

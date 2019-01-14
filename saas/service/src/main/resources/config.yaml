@@ -1,3 +1,7 @@
+service:
+    port: 8088
+    createTablesIfNotExists: true
+
 database:
   driverClass: com.mysql.jdbc.Driver
   user: rw
@@ -10,10 +14,6 @@ database:
     acquireIncrement: 5
     numHelperThreads: 3
     checkoutTimeout: 10000
-
-service:
-    port: 8088
-    createTablesIfNotExists: true
 
 logging:
   level: INFO
