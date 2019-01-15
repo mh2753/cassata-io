@@ -10,29 +10,34 @@ PID_PATH_NAME=/tmp/cassata.io.$SERVICE_NAME.lock
 
 _start_service() { 
 
-        echo "Starting $SERVICE_NAME ..."
-        if [ ! -f $PID_PATH_NAME ]; then
-            nohup java -jar $PATH_TO_JAR/$SERVICE_NAME.jar server $PATH_TO_CONFIG/service-config.yaml 2>> stdout.txt>> stdout.txt &
-            echo $! > $PID_PATH_NAME
-            echo "$SERVICE_NAME started ..."
-        else
-            echo "$SERVICE_NAME is already running ..."
-        fi
+    echo "Starting $SERVICE_NAME ..."
+    if [ ! -f $PID_PATH_NAME ]; then
+        nohup java -jar $PATH_TO_JAR/$SERVICE_NAME.jar server $PATH_TO_CONFIG/service/config.yaml 2>> stdout.txt>> stdout.txt &
+        echo $! > $PID_PATH_NAME
+        echo "$SERVICE_NAME started ..."
+    else
+        echo "$SERVICE_NAME is already running ..."
+    fi
 }
 
 _start_worker() { 
 
-        echo "Starting $SERVICE_NAME ..."
-        if [ ! -f $PID_PATH_NAME ]; then
-            nohup java -jar $PATH_TO_JAR/$SERVICE_NAME.jar 2>> stdout.txt>> stdout.txt &
-                        echo $! > $PID_PATH_NAME
-            echo "$SERVICE_NAME started ..."
-        else
-            echo "$SERVICE_NAME is already running ..."
-        fi
+    echo "Starting $SERVICE_NAME ..."
+    if [ ! -f $PID_PATH_NAME ]; then
+        nohup java -jar $PATH_TO_JAR/$SERVICE_NAME.jar $PATH_TO_CONFIG/worker/config.yaml 2>> stdout.txt>> stdout.txt &
+        echo $! > $PID_PATH_NAME
+        echo "$SERVICE_NAME started ..."
+    else
+        echo "$SERVICE_NAME is already running ..."
+    fi
 }
 
 _start() { 
+
+    if [ ! -f $PATH_TO_JAR/$SERVICE_NAME.jar ]; then 
+        echo "Unable to find $SERVICE_NAME.jar in $PATH_TO_JAR/ Exiting" 
+        exit 1
+    fi
 
     if [ "$SERVICE" = "service" ]; then 
         _start_service

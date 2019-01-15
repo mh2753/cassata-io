@@ -42,7 +42,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Injector injector = Guice.createInjector(new WorkerThreadModule());
+        Injector injector = Guice.createInjector(new WorkerThreadModule(args[0]));
 
         CassataWorker cassataWorker = injector.getInstance(CassataWorker.class);
 

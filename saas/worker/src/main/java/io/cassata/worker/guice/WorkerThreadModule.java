@@ -29,6 +29,7 @@ import io.cassata.worker.core.*;
 import org.skife.jdbi.v2.DBI;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -37,12 +38,18 @@ import java.util.concurrent.ScheduledExecutorService;
 public class WorkerThreadModule extends AbstractModule {
 
     private static WorkerConfiguration workerConfiguration;
+    private String pathToConfig;
+
+    public WorkerThreadModule(String pathToConfig) {
+        this.pathToConfig = pathToConfig;
+    }
 
     protected void configure() {
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
-            workerConfiguration = mapper.readValue(Thread.currentThread().getContextClassLoader().getResourceAsStream("config.yaml"), WorkerConfiguration.class);
+            //workerConfiguration = mapper.readValue(Thread.currentThread().getContextClassLoader().getResourceAsStream("config.yaml"), WorkerConfiguration.class);
+            workerConfiguration = mapper.readValue(new FileInputStream(pathToConfig), WorkerConfiguration.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
