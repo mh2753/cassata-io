@@ -122,7 +122,7 @@ public class WorkerThreadModule extends AbstractModule {
 
             CassataWorker cassataWorker = new CassataWorker();
             cassataWorker.setScheduledExecutorService(scheduledPool);
-            cassataWorker.setWorkerThreadPollingInterval(workerConfiguration.getWorkerThreadProperties().getWorkerThreadPollingInterval());
+            cassataWorker.setWorkerThreadPollingIntervalInMillis(workerConfiguration.getWorkerThreadProperties().getWorkerThreadPollingIntervalInMillis());
             cassataWorker.setWorkerThreads(workerThreads);
             cassataWorker.setCleanupThread(cleanupThread);
             cassataWorker.setCleanupThreadExecutor(cleanupScheduledPool);

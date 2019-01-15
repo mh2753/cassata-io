@@ -30,7 +30,7 @@ public class CassataWorker {
 
     private List<WorkerThread> workerThreads;
     private ScheduledExecutorService scheduledExecutorService;
-    private int workerThreadPollingInterval;
+    private int workerThreadPollingIntervalInMillis;
 
     private ScheduledExecutorService cleanupThreadExecutor;
     private CleanupThread cleanupThread;
@@ -42,7 +42,7 @@ public class CassataWorker {
 
         log.info("Scheduling worker threads");
         for (WorkerThread workerThread: workerThreads) {
-            scheduledExecutorService.scheduleAtFixedRate(workerThread, INITIAL_DELAY, workerThreadPollingInterval, TimeUnit.SECONDS);
+            scheduledExecutorService.scheduleAtFixedRate(workerThread, INITIAL_DELAY, workerThreadPollingIntervalInMillis, TimeUnit.MILLISECONDS);
         }
 
         log.info("Scheduling cleanup threads");

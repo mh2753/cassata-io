@@ -1,11 +1,19 @@
+###################################################################
+##################### SERVICE CONFIGURATION #######################
+###################################################################
+
 service:
+    #Service will start listening on this port
     port: 8088
+    #If tables for the scheduler do not exist in the DB, create 
+    #them.
     createTablesIfNotExists: true
 
+#####################   DB CONFIGURATION    #######################
 database:
   driverClass: com.mysql.jdbc.Driver
-  user: rw
-  password: password123
+  user: <db_user>     
+  password: <db_pwd>
   url: jdbc:mysql://localhost:3306/cassata
   initialSize: 5
   minSize: 2
@@ -15,6 +23,7 @@ database:
     numHelperThreads: 3
     checkoutTimeout: 10000
 
+#####################  LOGGING CONFIGURATION #######################
 logging:
   level: INFO
   appenders:
@@ -27,6 +36,7 @@ logging:
       timeZone: UTC
       logFormat: 
 
+##################### DROP WIZARD CONFIGURATION ####################
 server:
   requestLog:
     appenders:

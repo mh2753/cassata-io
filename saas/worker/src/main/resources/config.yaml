@@ -1,7 +1,31 @@
+###################################################################
+##################### WORKER CONFIGURATION  #######################
+###################################################################
+
+# The worker will spawn numWorkerThreads threads. Each of these threds
+# will poll the DB for pending events that are due for expiry. The 
+# polling interval can be set with workerThreadPollingIntervalInMillis. 
+# During each poll, a thread will lock numEventsProcessedPerTransaction 
+# events. 
+# Each of these events will then be relayed to its destination. In case 
+# of HTTP failures, each event will be retried httpRetryCount times with 
+# an exponential backoff
+ 
+workerThreadProperties: 
+  #Number of worker threads concurrently emptying expired events
+  numWorkerThreads: 5
+  #Number of events picked up by a single thread in each 
+  #transaction
+  numEventsProcessedPerTransaction: 5
+  #Worker Thread sleep time in milli-seconds between two transactions
+  workerThreadPollingIntervalInMillis: 10000
+  httpRetryCount: 5
+
+#####################   DB CONFIGURATION    #######################
 database:
   driverClass: com.mysql.jdbc.Driver
-  user: rw
-  password: password123
+  user: <db_user>     
+  password: <db_pwd>
   url: jdbc:mysql://localhost:3306/cassata
   initialSize: 5
   minSize: 2
@@ -11,8 +35,3 @@ database:
     numHelperThreads: 3
     checkoutTimeout: 10000
 
-workerThreadProperties: 
-  numWorkerThreads: 5
-  numEventsProcessedPerTransaction: 5
-  workerThreadPollingInterval: 10
-  httpRetryCount: 5
