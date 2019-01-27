@@ -26,6 +26,7 @@ import org.skife.jdbi.v2.Handle;
 public class MySQLDatabaseBuilder extends DatabaseBuilder {
 
     private static final String CREATE_EVENTS_FILE_NAME = "sql/mysql-create-events.sql";
+    private static final String CREATE_EVENTLOG_FILE_NAME = "sql/mysql-create-eventlog.sql";
 
     private DBI dbi;
     private ServiceConfig serviceConfig;
@@ -39,17 +40,27 @@ public class MySQLDatabaseBuilder extends DatabaseBuilder {
 
         if (serviceConfig.isCreateTablesIfNotExists()) {
 
+            //Create the main events table
             log.info("CreateTablesIfNotExists is set to true. Trying to create tables");
+            log.info("Creating events table");
+            createTableFromFile(CREATE_EVENTS_FILE_NAME);
 
-            try {
-
-                Handle handle = dbi.open();
-                handle.execute(getQueryFromFile(CREATE_EVENTS_FILE_NAME));
-            } catch (Exception e) {
-
-                log.error("Error in creating tables.", e);
-                throw new CassataException("Exception in creating table. ", e);
-            }
+            log.info("Creating events log table");
+            //Create the event log table
+            createTableFromFile(CREATE_EVENTLOG_FILE_NAME);
         }
+    }
+
+    private void createTableFromFile(String fileName) {
+        try {
+
+            Handle handle = dbi.open();
+            handle.execute(getQueryFromFile(fileName));
+        } catch (Exception e) {
+
+            log.error("Error in creating tables.", e);
+            throw new CassataException("Exception in creating table. ", e);
+        }
+
     }
 }

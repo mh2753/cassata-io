@@ -22,4 +22,5 @@ import lombok.Data;
 public class ServiceConfig {
     private int port;
     private boolean createTablesIfNotExists;
+    private boolean createFailedRequestLog;
 }

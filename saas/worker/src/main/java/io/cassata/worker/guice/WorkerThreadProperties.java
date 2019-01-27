@@ -21,6 +21,7 @@ import lombok.Data;
 @Data
 public class WorkerThreadProperties {
 
+    private boolean logFailedRequests;
     private int numWorkerThreads;
     private int numEventsProcessedPerTransaction;
     private int workerThreadPollingIntervalInMillis;

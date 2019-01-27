@@ -17,10 +17,12 @@
 package io.cassata.worker.core;
 
 import com.codahale.metrics.Meter;
+import io.cassata.commons.dal.EventlogTableDao;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.http.HttpRequestWrapper;
 import io.cassata.commons.http.HttpResponse;
 import io.cassata.commons.models.Event;
+import io.cassata.commons.models.EventLog;
 import io.cassata.commons.models.EventStatus;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,10 @@ public class EventProcessor implements Callable<Void> {
 
     private Event event;
     private int retryCount;
+    private EventlogTableDao eventlogTableDao;
     private EventsTableDao eventsTableDao;
+
+    private boolean logFailedRequests;
 
     private Meter numRequests;
     private Meter failedRequests;
@@ -75,6 +80,8 @@ public class EventProcessor implements Callable<Void> {
                             event.getEventId(),
                             response.getResponseString());
 
+                    createEventLog(response);
+
                     try {
                         Thread.sleep(waitTime);
                     } catch (InterruptedException e) {
@@ -91,6 +98,8 @@ public class EventProcessor implements Callable<Void> {
                             response.getResponseCode(),
                             response.getResponseString());
 
+                    createEventLog(response);
+
                     eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
                     failedRequests.mark();
                     return (null);
@@ -99,13 +108,10 @@ public class EventProcessor implements Callable<Void> {
 
                 log.error("App Id: " + event.getApplication() + ". Event Id: " + event.getEventId() + ".Connect Exception in calling service.", e);
 
-                try {
-                    Thread.sleep(waitTime);
-                } catch (InterruptedException e1) {
-                    log.warn("Sleep interrupted", e1);
-                }
+                eventsTableDao.updateEventStatus(event.getId(), EventStatus.SERVICE_UNAVAILABLE);
 
-                waitTime *= 2;
+                failedRequests.mark();
+                return (null);
             } catch (Exception e) {
                 log.error("Exception in calling service. Marking request as failed", e);
                 eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
@@ -122,6 +128,23 @@ public class EventProcessor implements Callable<Void> {
         eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
         failedRequests.mark();
         return (null);
+    }
+
+    private void createEventLog(HttpResponse httpResponse) {
+
+        if (this.logFailedRequests) {
+            log.info("Log failed requests set to true. Logging request for app id: {} event id: {} to database",
+                    this.event.getApplication(),
+                    this.event.getEventId());
+
+            EventLog eventLog = EventLog.builder()
+                    .saasEventsId(this.event.getId())
+                    .httpResponseCode(httpResponse.getResponseCode())
+                    .httpResponse(httpResponse.getResponseString())
+                    .build();
+
+            eventlogTableDao.insertEventLog(eventLog);
+        }
     }
 
 }

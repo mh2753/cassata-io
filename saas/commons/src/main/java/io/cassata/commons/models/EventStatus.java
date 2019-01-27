@@ -20,5 +20,7 @@ public enum EventStatus {
     PENDING,
     PROCESSING,
     COMPLETED,
-    FAILED;
+    FAILED,
+    SERVICE_UNAVAILABLE
+    ;
 }

@@ -20,7 +20,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import io.cassata.commons.bootstrap.configurations.ServiceConfig;
+import io.cassata.commons.dal.EventlogTableDao;
 import io.cassata.commons.dal.EventsTableDao;
+import io.cassata.commons.dal.MySQLEventlogTableDao;
 import io.cassata.commons.dal.MySQLEventsTableDao;
 import io.cassata.commons.dal.databaseBuilder.MySQLDatabaseBuilder;
 import org.skife.jdbi.v2.DBI;
@@ -51,6 +53,7 @@ public class DataAccessLayerModule extends AbstractModule {
         }
 
         bind(EventsTableDao.class).toProvider(EventsTableDAOProvider.class);
+        bind(EventlogTableDao.class).toProvider(EventlogTableDAOProvider.class);
     }
 
     @Singleton
@@ -62,6 +65,21 @@ public class DataAccessLayerModule extends AbstractModule {
             if (dbType.equals(DatabaseTypes.MYSQL)) {
 
                 return dbi.onDemand(MySQLEventsTableDao.class);
+            } else {
+                throw new IllegalArgumentException("Unsupported Database type: " + dbType.name());
+            }
+        }
+    }
+
+    @Singleton
+    public static class EventlogTableDAOProvider implements Provider<EventlogTableDao> {
+
+        public EventlogTableDao get() {
+
+            //TODO add postgres here
+            if (dbType.equals(DatabaseTypes.MYSQL)) {
+
+                return dbi.onDemand(MySQLEventlogTableDao.class);
             } else {
                 throw new IllegalArgumentException("Unsupported Database type: " + dbType.name());
             }

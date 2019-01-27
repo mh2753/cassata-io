@@ -24,6 +24,7 @@ import com.google.inject.*;
 import com.google.inject.name.Names;
 import io.cassata.commons.bootstrap.DataAccessLayerModule;
 import io.cassata.commons.bootstrap.DatabaseTypes;
+import io.cassata.commons.dal.EventlogTableDao;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.worker.core.*;
 import org.skife.jdbi.v2.DBI;
@@ -48,7 +49,6 @@ public class WorkerThreadModule extends AbstractModule {
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
-            //workerConfiguration = mapper.readValue(Thread.currentThread().getContextClassLoader().getResourceAsStream("config.yaml"), WorkerConfiguration.class);
             workerConfiguration = mapper.readValue(new FileInputStream(pathToConfig), WorkerConfiguration.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -58,6 +58,7 @@ public class WorkerThreadModule extends AbstractModule {
         String userName = workerConfiguration.getDataSourceFactory().getUser();
         String password = workerConfiguration.getDataSourceFactory().getPassword();
 
+        //FIXME Throw exception if username password is not correct
         DBI dbi = new DBI(dbUrl, userName, password);
         //Get the DB type for the JDBC Url. I hope there is a better way of doing this
         String []urlParts = dbUrl.split(":");
@@ -82,12 +83,17 @@ public class WorkerThreadModule extends AbstractModule {
         EventsTableDao eventsTableDao;
 
         @Inject
+        EventlogTableDao eventlogTableDao;
+
+        @Inject
         MetricRegistry metricRegistry;
 
         public EventProcessorFactory get() {
             EventProcessorFactory eventProcessorFactory = new EventProcessorFactory(metricRegistry);
             eventProcessorFactory.setEventsTableDao(eventsTableDao);
+            eventProcessorFactory.setEventlogTableDao(eventlogTableDao);
             eventProcessorFactory.setRetryCount(workerConfiguration.getWorkerThreadProperties().getHttpRetryCount());
+            eventProcessorFactory.setLogFailedRequests(workerConfiguration.getWorkerThreadProperties().isLogFailedRequests());
 
             return eventProcessorFactory;
         }

@@ -5,7 +5,7 @@ set -e
 SERVICE_NAME=$1
 COMMAND=$2
 PATH_TO_JAR=../lib
-PATH_TO_CONFIG=../config/
+PATH_TO_CONFIG=../config
 PID_PATH_NAME=/tmp/cassata.io.$SERVICE_NAME.lock
 
 _start_service() { 
@@ -39,7 +39,7 @@ _start() {
         exit 1
     fi
 
-    if [ "$SERVICE" = "service" ]; then 
+    if [ "$SERVICE_NAME" = "service" ]; then 
         _start_service
     else 
         _start_worker

@@ -18,6 +18,7 @@ package io.cassata.worker.core;
 
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
+import io.cassata.commons.dal.EventlogTableDao;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.models.Event;
 import lombok.Setter;
@@ -29,6 +30,8 @@ public class EventProcessorFactory {
 
     private Integer retryCount;
     private EventsTableDao eventsTableDao;
+    private EventlogTableDao eventlogTableDao;
+    private boolean logFailedRequests;
     private MetricRegistry metricRegistry;
 
     private Meter numRequests;
@@ -47,6 +50,7 @@ public class EventProcessorFactory {
         EventProcessor eventProcessor = new EventProcessor();
         eventProcessor.setEvent(event);
         eventProcessor.setEventsTableDao(eventsTableDao);
+        eventProcessor.setEventlogTableDao(eventlogTableDao);
         eventProcessor.setRetryCount(retryCount);
         eventProcessor.setNumRequests(numRequests);
         eventProcessor.setFailedRequests(failedRequests);
