@@ -30,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/cassata/")
@@ -49,6 +51,22 @@ public class CassataServiceResource {
     @Path("add/")
     @Timed
     public BasicResponse addEvent(AddEventRequest addEventRequest) {
+
+        try {
+
+            URL endpoint = new URL(addEventRequest.getDestinationUrl());
+        } catch (MalformedURLException e) {
+            log.error("Unable to parse URL {} for app id: {} event id: {}",
+                    addEventRequest.getDestinationUrl(),
+                    addEventRequest.getApplication(),
+                    addEventRequest.getEventId()
+            );
+
+            return BasicResponse.builder()
+                    .status(BasicResponse.StatusCode.failed)
+                    .message("Unable to parse destination URL")
+                    .build();
+        }
 
         return addEventProcessor.addEvent(addEventRequest);
     }
