@@ -11,7 +11,7 @@ public abstract class MySQLEventlogTableDao implements EventlogTableDao {
 
     @RegisterMapper(EventMapper.class)
     @SqlUpdate("insert into _saas_eventlog " +
-            "(_saas_events_id, http_resposne_code, http_response, created_at)" +
-            "values (:saasEventsId, :httpResponseCode, httpResponse, now())")
+            "(_saas_events_id, http_response_code, http_response, created_at)" +
+            "values (:saasEventsId, :httpResponseCode, :httpResponse, now())")
     public abstract void insertEventLog(@BindBean EventLog eventLog);
 }

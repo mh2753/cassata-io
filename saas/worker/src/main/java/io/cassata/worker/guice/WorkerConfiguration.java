@@ -28,6 +28,8 @@ public class WorkerConfiguration {
     @NotNull
     private DataSourceFactory database = new DataSourceFactory();
 
+    private WorkerThreadProperties workerThreadProperties;
+
     @JsonProperty("database")
     public void setDataSourceFactory(DataSourceFactory factory) {
         this.database = factory;
@@ -37,13 +39,14 @@ public class WorkerConfiguration {
         return database;
     }
 
+    @JsonProperty("workerThreadProperties")
     public WorkerThreadProperties getWorkerThreadProperties() {
         return workerThreadProperties;
     }
 
+    @JsonProperty("workerThreadProperties")
     public void setWorkerThreadProperties(WorkerThreadProperties workerThreadProperties) {
         this.workerThreadProperties = workerThreadProperties;
     }
 
-    private WorkerThreadProperties workerThreadProperties;
 }

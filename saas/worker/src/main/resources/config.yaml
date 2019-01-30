@@ -20,12 +20,13 @@ workerThreadProperties:
   #Worker Thread sleep time in milli-seconds between two transactions
   workerThreadPollingIntervalInMillis: 10000
   httpRetryCount: 5
+  logFailedRequests: true
 
 #####################   DB CONFIGURATION    #######################
 database:
   driverClass: com.mysql.jdbc.Driver
-  user: <db_user>     
-  password: <db_pwd>
+  user: rw
+  password: password123
   url: jdbc:mysql://localhost:3306/cassata
   initialSize: 5
   minSize: 2

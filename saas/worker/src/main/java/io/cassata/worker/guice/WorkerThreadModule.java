@@ -27,6 +27,7 @@ import io.cassata.commons.bootstrap.DatabaseTypes;
 import io.cassata.commons.dal.EventlogTableDao;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.worker.core.*;
+import lombok.extern.slf4j.Slf4j;
 import org.skife.jdbi.v2.DBI;
 
 import java.io.File;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+@Slf4j
 public class WorkerThreadModule extends AbstractModule {
 
     private static WorkerConfiguration workerConfiguration;
@@ -50,6 +52,10 @@ public class WorkerThreadModule extends AbstractModule {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
             workerConfiguration = mapper.readValue(new FileInputStream(pathToConfig), WorkerConfiguration.class);
+
+            //FIXME only for debug
+            log.info("Worker thread properties: ");
+            log.info(workerConfiguration.getWorkerThreadProperties().toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

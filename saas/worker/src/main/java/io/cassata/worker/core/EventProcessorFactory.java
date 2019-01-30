@@ -32,8 +32,8 @@ public class EventProcessorFactory {
     private EventsTableDao eventsTableDao;
     private EventlogTableDao eventlogTableDao;
     private boolean logFailedRequests;
-    private MetricRegistry metricRegistry;
 
+    private MetricRegistry metricRegistry;
     private Meter numRequests;
     private Meter failedRequests;
     private Meter completedRequets;
@@ -52,6 +52,8 @@ public class EventProcessorFactory {
         eventProcessor.setEventsTableDao(eventsTableDao);
         eventProcessor.setEventlogTableDao(eventlogTableDao);
         eventProcessor.setRetryCount(retryCount);
+        eventProcessor.setLogFailedRequests(logFailedRequests);
+
         eventProcessor.setNumRequests(numRequests);
         eventProcessor.setFailedRequests(failedRequests);
         eventProcessor.setCompletedRequests(completedRequets);

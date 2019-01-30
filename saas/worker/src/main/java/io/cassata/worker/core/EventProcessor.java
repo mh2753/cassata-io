@@ -72,8 +72,7 @@ public class EventProcessor implements Callable<Void> {
                     completedRequests.mark();
                     return (null);
 
-                }
-                if (response.getResponseCode() >= 500) {
+                } else if (response.getResponseCode() >= 500) {
 
                     log.warn("App Id: {}, Event Id: {}. Received error response from service: {}. Retrying.",
                             event.getApplication(),
