@@ -18,6 +18,7 @@ package io.cassata.commons.http;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cassata.commons.exceptions.CassataException;
 
 import java.io.*;
 import java.net.*;
@@ -54,21 +55,22 @@ public class HttpRequestWrapper {
 
             endpoint = new URL(url);
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Unable to parse URL: " + url, e);
+            throw new IllegalStateException("Unable to parse URL: " + url, e);
         }
 
         httpURLConnection = null;
         try {
             httpURLConnection = (HttpURLConnection)endpoint.openConnection();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CassataException(e);
         }
+
         try {
             httpURLConnection.setRequestMethod(requestType.name());
-            httpURLConnection.setConnectTimeout(5000);
+            httpURLConnection.setConnectTimeout(connectionTimeout);
             httpURLConnection.setDoOutput(true);
         } catch (ProtocolException e) {
-            e.printStackTrace();
+            throw new CassataException(e);
         }
     }
 
@@ -83,9 +85,14 @@ public class HttpRequestWrapper {
             os.flush();
             os.close();
 
-            InputStream in = httpURLConnection.getInputStream();
+            InputStream inputStream;
+            if (httpURLConnection.getResponseCode() < HttpURLConnection.HTTP_BAD_REQUEST) {
+                inputStream = httpURLConnection.getInputStream();
+            } else {
+                inputStream = httpURLConnection.getErrorStream();
+            }
 
-            BufferedReader rd = new BufferedReader(new InputStreamReader(in));
+            BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             StringBuffer response = new StringBuffer();
             while ((line = rd.readLine()) != null) {
@@ -98,7 +105,7 @@ public class HttpRequestWrapper {
         } catch (ConnectException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Unable to connect to server", e);
+            throw new CassataException("Unable to connect to server", e);
         } finally {
             if (httpURLConnection != null) {
                 httpURLConnection.disconnect();
