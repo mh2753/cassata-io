@@ -70,18 +70,26 @@ Start Worker with `./cassata worker start`
 
 ## Configuration 
 ### Service Configuration
+
+The Service is a regular dropwizard service and the bulk of config is just regular dropwizard config. Refer https://www.dropwizard.io/1.3.1/docs/manual/configuration.html for details. 
+
+Cassata specific service config is nested under _service_ in the config file
+
 | Config        | Default           | Explanation  |
 | ------------- |:-------------:| -----|
-| port      | 8085 | The port that Service listens to. |
 | createTablesIfNotExists      | false      |   Create Tables in DBMS if they don't already exist. |
 
 ### Worker Configuration 
+
+Cassata specific worker configurations are nested under _workerThreadProperties_ in the config file. They are explained below. Database configurations are nested under _database_ and these are regular JDBI configurations (refer: https://www.dropwizard.io/1.3.1/docs/manual/jdbi.html#configuration) 
+
 | Config        | Default           | Explanation  |
 | ------------- |:-------------:| -----|
 | numWorkerThreads      | 5 | Number of worker threads polling for expired events. |
-| workerThreadPollingInterval      | 10      |   Number of seconds a worker thread sleeps between each poll of the Datastore  |
+| workerThreadPollingIntervalInMillis      | 10000      |   Number of milli-seconds a worker thread sleeps between each poll of the Datastore  |
 | numEventsProcessedPerTransaction      | 5      |   Number of expired events picked up by a Worker thread for processing.  |
 | httpRetryCount      | 5      |   Number of retries to the destination URL (in case of Connection Error or 5XX error) before marking the event as failure. |
+| logFailedRequests      | false      |   Log the http code and message of a failed request in a separate table for diagnosis |
 
 
 ## Gotchas
