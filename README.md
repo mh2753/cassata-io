@@ -1,12 +1,11 @@
 # cassata-io
 
 ## Introduction 
-Cassata is a simple, light-weight, persistent, multi-tenant _Event Scheduler_ as a service. Essentially, it allows an application to schedule an HTTP request (called an _event_) to be sent in the future to a specified URL
+Cassata is a simple, light-weight, persistent, multi-tenant _**HTTP Request Scheduler**_ as a service. Essentially, it allows an application to schedule an HTTP request (called an _event_) to be sent in the future to a specified URL.
 
-The scheduler is made up of a _Service_ that accepts requets from clients, a _Datastore_ (currently MySQL) that persists these requests and a _Worker_ that processes expired events. All these components can be run and scaled independently of each other. 
 
 ## Components 
-Cassata has three components: Service, Worker and the Datastore. 
+The scheduler is made up of a _Service_ that accepts requets from clients, a _Datastore_ (currently MySQL) that persists these requests and a _Worker_ that processes expired events. All these components can be run and scaled independently of each other. 
 
 **Service** is a Dropwizard based service that accepts requests to schedule/unschedule events via http endpoints and persists them in the datastore. (See API definition below)
 
@@ -38,7 +37,7 @@ Cassata has three components: Service, Worker and the Datastore.
 
 **Application Id**: Name of the application generating the event.
 
-**Event**: An arbitrary JSON payload that is sent to the destination URL at the time of expiry.
+**Event**: This is the body of the HTTP request that will be sent to the destination URL. Can be any arbitrary JSON string.
 
 **Expiry**: The UNIX timestamp of the time when this event should be emitted by the worker.
 
