@@ -93,8 +93,8 @@ Cassata specific worker configurations are nested under _workerThreadProperties_
 
 
 ## Gotchas
-Like any other distributed application, Cassata does not (and cannot) guarentee an exactly once delivery. It provides an at least once guarentee of emitting an event. Hence it is the responsibility of the event consumer to manage de-duplication. 
+Like any other distributed application, Cassata does not guarentee an exactly once delivery. It provides an at least once guarentee of emitting an event.  It is the responsibility of the event consumer to manage de-duplication. 
 
 ## Coming Soon 
 
-Support for Apache Derby.
+Support for Postgres and Elastic Search as data sources. 
