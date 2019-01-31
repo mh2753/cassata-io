@@ -1,19 +1,35 @@
-###################################################################
-##################### SERVICE CONFIGURATION #######################
-###################################################################
+####################################################################
+##################### SERVICE CONFIGURATION ########################
+####################################################################
 
+###############  CASSATA SPECIFIC CONFIGURATION ####################
 service:
-    #Service will start listening on this port
-    port: 8088
-    #If tables for the scheduler do not exist in the DB, create 
-    #them.
     createTablesIfNotExists: true
+
+##################### DROP WIZARD CONFIGURATION ####################
+# Refer: https://www.dropwizard.io/1.3.1/docs/manual/configuration.html
+# for more dropwizard configuration options 
+####################################################################
+server:
+  applicationConnectors:
+      - type: http
+        port: 8085
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: ../logs/service-requests.log
+        threshold: ALL
+        archive: true
+        archivedLogFilenamePattern: ../logs/service-requests%d.log
+        archivedFileCount: 5
+        timeZone: UTC
+        logFormat: 
 
 #####################   DB CONFIGURATION    #######################
 database:
   driverClass: com.mysql.jdbc.Driver
-  user: <db_user>     
-  password: <db_pwd>
+  user: rw
+  password: password123
   url: jdbc:mysql://localhost:3306/cassata
   initialSize: 5
   minSize: 2
@@ -36,15 +52,3 @@ logging:
       timeZone: UTC
       logFormat: 
 
-##################### DROP WIZARD CONFIGURATION ####################
-server:
-  requestLog:
-    appenders:
-      - type: file
-        currentLogFilename: ../logs/service-requests.log
-        threshold: ALL
-        archive: true
-        archivedLogFilenamePattern: ../logs/service-requests%d.log
-        archivedFileCount: 5
-        timeZone: UTC
-        logFormat: 

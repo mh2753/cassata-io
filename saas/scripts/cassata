@@ -50,7 +50,7 @@ _stop() {
 
         if [ -f $PID_PATH_NAME ]; then
             PID=$(cat $PID_PATH_NAME);
-            echo "$SERVICE_NAME stoping ..."
+            echo "Stopping $SERVICE_NAME ..."
             kill $PID
             echo "$SERVICE_NAME stopped ..."
             rm $PID_PATH_NAME
@@ -87,7 +87,7 @@ if [ ! -x "$JAVA" ]; then
     exit 1                                                                  
 fi                                                                        
 
-if [[ ($SERVICE_NAME = "service" || $SERVICE_NAME = "worker") && ($COMMAND = "start" || $COMMAND = "stop") ]]; then 
+if [[ ($SERVICE_NAME = "service" || $SERVICE_NAME = "worker") && ($COMMAND = "start" || $COMMAND = "stop" || $COMMAND = "restart" ) ]]; then 
     _main
 else
     echo "Usage start.sh service|worker start|stop"
