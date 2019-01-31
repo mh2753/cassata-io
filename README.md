@@ -1,21 +1,18 @@
 # cassata-io
 
 ## Introduction 
-Cassata is a simple, light-weight, persistent _Event Scheduler_. At the most basic level, it fires a given _Event_, at a given time, to a given URL. An _Event_ is just an arbitrary JSON defined by the user. 
+Cassata is a simple, light-weight, persistent, multi-tenant _Event Scheduler_ as a service. Essentially, it allows an application to schedule an HTTP request (called an _event_) to be sent in the future to a specified URL
 
-Cassata can be used as a **Delay Queue** application behind an existing _Kafka_ or _RMQ_ to let them process events after a delay.
-
-Cassata is designed as a Scheduler Service (as opposed to a library), that can be managed and scaled independently of the services/applications using it. 
-
+The scheduler is made up of a _Service_ that accepts requets from clients, a _Datastore_ (currently MySQL) that persists these requests and a _Worker_ that processes expired events. All these components can be run and scaled independently of each other. 
 
 ## Components 
 Cassata has three components: Service, Worker and the Datastore. 
 
-**Service** is a Dropwizard based service that accepts requests to schedule/unschedule events via http endpoints and persists them in the datastore. 
+**Service** is a Dropwizard based service that accepts requests to schedule/unschedule events via http endpoints and persists them in the datastore. (See API definition below)
 
-**Worker** is a long running Java application that periodically identifies the events that have expired, and fires them to their respective destinations.
+**Worker** is a long running Java application that periodically identifies the events that have expired, and fires them to their respective destinations. Clients can provide the HTTP method and optional headers that need to be sent with this request. (See API description below). In case of http failures in calling the destination URL, error codes and status messages can also be persisted to the datastore for diagnosis. 
 
-**Datastore** is an RDBMS database (currently MySQL and Postgres are supported) that is used to store the event and its metadata. 
+**Datastore** is a database (currently MySQL is supported) that is used to store the event and its metadata.
 
 ## Service API
 ### Create Event
@@ -37,10 +34,9 @@ Cassata has three components: Service, Worker and the Datastore.
   ]
 }
 ```
+**Event Id**: A unique event Id used for de-duplication. Event Id must be unique within every application. Different applications can share an event ID.
 
 **Application Id**: Name of the application generating the event.
-
-**Event Id**: A unique event Id used for de-duplication. Event Id must be unique within every application. Different applications can share an event ID.
 
 **Event**: An arbitrary JSON payload that is sent to the destination URL at the time of expiry.
 
@@ -58,7 +54,7 @@ Cassata has three components: Service, Worker and the Datastore.
 
 ## Get Status
 ###### GET
-**/cassata/status/{appId}/{eventId}** Get the status of event identified by _appId_ and _eventID_. Possible status are PENDING, PROCESSING, COMPLETED, FAILED.
+**/cassata/status/{appId}/{eventId}** Get the status of event identified by _appId_ and _eventID_. Possible status are PENDING, PROCESSING, COMPLETED, SERVICE_UNAVAILABLE, FAILED.
 
 ## Setup 
 
