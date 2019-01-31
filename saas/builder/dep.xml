@@ -56,7 +56,7 @@
         <directory>../scripts/</directory>
         <outputDirectory>bin/</outputDirectory>
         <includes>
-            <include>start.sh</include>
+            <include>cassata</include>
         </includes>
     </fileSet>
     <fileSet>
