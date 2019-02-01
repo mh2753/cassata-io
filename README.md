@@ -57,9 +57,9 @@ The scheduler is made up of a _Service_ that accepts requets from clients, a _Da
 
 ## Setup 
 
-Download the binary for Linux and Mac OS here and unzip it. 
+Download the lastest binary for Linux and Mac OS [here](https://github.com/mh2753/cassata-io/releases/download/v1.0/cassata-1.0-bin.tar.gz) and unzip it. Note the same binary has the worker and service applications.
 
-Edit the Service and Worker configurations in `$CASSATA_HOME/config` folder. 
+Edit the Service and/or Worker configurations in `$CASSATA_HOME/config` folder. 
 
 Go to `$CASSATA_HOME/bin` folder. 
 
@@ -67,6 +67,7 @@ Start service with `./cassata service start`
 
 Start Worker with `./cassata worker start`
 
+Note that you do not have to start the Service and Worker on the same host (they just need to be connected to the same Database to co-ordinate). Also, you have have multiple instances of Service and Worker running for scalability.
 
 ## Configuration 
 ### Service Configuration
