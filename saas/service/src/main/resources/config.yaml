@@ -28,8 +28,8 @@ server:
 #####################   DB CONFIGURATION    #######################
 database:
   driverClass: com.mysql.jdbc.Driver
-  user: rw
-  password: password123
+  user: <db_user>
+  password: <db_password>
   url: jdbc:mysql://localhost:3306/cassata
   initialSize: 5
   minSize: 2
