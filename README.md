@@ -57,17 +57,25 @@ The scheduler is made up of a _Service_ that accepts requets from clients, a _Da
 
 ## Setup 
 
+### Download
 Download the lastest binary for Linux and Mac OS [here](https://github.com/mh2753/cassata-io/releases/download/v1.0/cassata-1.0-bin.tar.gz) and unzip it. Note the same binary has the worker and service applications.
+
+### Table Setup 
+Cassata needs the _events_ (\_saas_events) and the _eventlog_ (\_saas_eventlog) table in the Datastore. You can create them with the SQLs statements [here].(https://github.com/mh2753/cassata-io/tree/master/saas/service/src/main/resources/sql)
+Alternatively, you can start the service with _createTablesIfNotExists_ as _true_ and the tables will be created by the service. Note that this will require your DB user to have DDL permissions.
+
+### Configurations
 
 Edit the Service and/or Worker configurations in `$CASSATA_HOME/config` folder. 
 
+### Start Service/Worker
 Go to `$CASSATA_HOME/bin` folder. 
 
 Start service with `./cassata service start`
 
 Start Worker with `./cassata worker start`
 
-Note that you do not have to start the Service and Worker on the same host (they just need to be connected to the same Database to co-ordinate). Also, you have have multiple instances of Service and Worker running for scalability.
+The Service and Worker do not have to be started on the same host (they just need to be connected to the same Database to co-ordinate). Also, you have have multiple instances of Service and Worker running for scalability.
 
 ## Configuration 
 ### Service Configuration
@@ -78,7 +86,7 @@ Cassata specific service config is nested under _service_ in the config file
 
 | Config        | Default           | Explanation  |
 | ------------- |:-------------:| -----|
-| createTablesIfNotExists      | false      |   Create Tables in DBMS if they don't already exist. |
+| createTablesIfNotExists      | false      |   Create Tables in DBMS if they don't already exist. (Note that this will require your DB user to have DDL permissions. |
 
 ### Worker Configuration 
 
