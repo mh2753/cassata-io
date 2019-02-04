@@ -58,10 +58,10 @@ The scheduler is made up of a _Service_ that accepts requets from clients, a _Da
 ## Setup 
 
 ### Download
-Download the lastest binary for Linux and Mac OS [here](https://github.com/mh2753/cassata-io/releases/download/v1.0/cassata-1.0-bin.tar.gz) and unzip it. Note the same binary has the worker and service applications.
+Download the lastest binary for Linux and Mac OS [here](https://github.com/mh2753/cassata-io/releases/download/v1.0/cassata-1.0-bin.tar.gz) and unzip it. The same binary has the worker and service applications.
 
 ### Table Setup 
-Cassata needs the _events_ (\_saas_events) and the _eventlog_ (\_saas_eventlog) table in the Datastore. You can create them with the SQLs statements [here].(https://github.com/mh2753/cassata-io/tree/master/saas/service/src/main/resources/sql)
+Cassata needs the _events_ (\_saas_events) and the _eventlog_ (\_saas_eventlog) tables in the Datastore. You can create them with SQLs statements [here](https://github.com/mh2753/cassata-io/tree/master/saas/service/src/main/resources/sql).
 Alternatively, you can start the service with _createTablesIfNotExists_ as _true_ and the tables will be created by the service. Note that this will require your DB user to have DDL permissions.
 
 ### Configurations
