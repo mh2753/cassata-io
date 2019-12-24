@@ -17,20 +17,28 @@
 package io.cassata.service.processor;
 
 import com.google.inject.Inject;
+import io.cassata.commons.dal.EventlogTableDao;
 import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.models.Event;
+import io.cassata.commons.models.EventLog;
 import io.cassata.commons.models.EventStatus;
 import io.cassata.service.http.request.AddEventRequest;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Slf4j
 public class GetRequestProcessor {
     @Inject
     private EventsTableDao eventsTableDao;
 
+    @Inject
+    private EventlogTableDao eventlogTableDao;
+
     public EventStatus getStatus(String appId, String eventId) {
 
-        log.info("App Id: {}, Event Id: {}. Received get request.", appId, eventId);
+        log.info("App Id: {}, Event Id: {}. Received getStatus request.", appId, eventId);
 
         Event event = eventsTableDao.getEventById(appId, eventId);
 
@@ -41,5 +49,31 @@ public class GetRequestProcessor {
 
         log.info("App Id: {}, Event Id: {}. Returning status {}..", appId, eventId, event.getEventStatus());
         return event.getEventStatus();
+    }
+
+    public Response getEvent(String appId, String eventId) {
+
+        log.info("App Id: {}, Event Id: {}. Received getStatus request.", appId, eventId);
+        Event event = eventsTableDao.getEventById(appId, eventId);
+
+        if (event == null) {
+            log.info("App Id: {}, Event Id: {}. Event not found.", appId, eventId);
+            return Response.status(404).build();
+        }
+
+        if (event.getEventStatus().equals(EventStatus.FAILED)) {
+
+            log.info("App Id: {}, Event Id: {} is in status FAILED. Fetching event logs for the event", appId, eventId);
+
+            List<EventLog> eventLogs =  eventlogTableDao.getEventLogByEventId(event.getId());
+
+            log.info("App Id: {}, Event Id: {}. Found {} event logs for the event", appId, eventId, eventLogs.size());
+
+            event.setEventLogs(eventLogs);
+        }
+
+        return Response.ok()
+                       .entity(event)
+                       .build();
     }
 }

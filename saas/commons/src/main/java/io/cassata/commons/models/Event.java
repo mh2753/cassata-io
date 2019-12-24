@@ -16,6 +16,7 @@
 
 package io.cassata.commons.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cassata.commons.exceptions.CassataException;
@@ -32,25 +33,24 @@ import java.util.Map;
 @Data
 public class Event {
 
+    @JsonIgnore
     private int id;
+
+
     private String eventId;
     private String application;
 
     private String eventJson;
-    private HttpRequestType httpMethod; //TODO Replace this with an Enum
+    private HttpRequestType httpMethod;
     private List<String> headers;
     private String destinationUrl;
     private EventStatus eventStatus;
     private Timestamp expiry;
+    private Timestamp lastUpdated;
 
-    public String getHeaders() {
-        try {
-            return new ObjectMapper().writeValueAsString(headers);
-        } catch (JsonProcessingException e) {
-            throw new CassataException("Unable to convert map to JSON", e);
-        }
-    }
+    private List<EventLog> eventLogs;
 
+    @JsonIgnore
     public Map<String, String> getHeaderMap() {
         Map<String, String> headerMap = new HashMap<String, String>();
 

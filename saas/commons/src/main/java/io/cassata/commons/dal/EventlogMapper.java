@@ -15,6 +15,7 @@ public class EventlogMapper implements ResultSetMapper<EventLog> {
                 .saasEventsId(resultSet.getInt("_saas_events_id"))
                 .httpResponseCode(resultSet.getInt("http_response_code"))
                 .httpResponse(resultSet.getString("http_response"))
+                .lastUpdated(resultSet.getTimestamp("created_at"))
                 .build();
     }
 }

@@ -34,7 +34,7 @@ public class AddEventRequest {
     private String eventJson;
 
     @JsonProperty("httpMethod")
-    private HttpRequestType httpMethod; //TODO Replace this with an Enum
+    private HttpRequestType httpMethod;
 
     private List<String> headers;
     private String destinationUrl;

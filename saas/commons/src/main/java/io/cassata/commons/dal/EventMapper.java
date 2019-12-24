@@ -47,9 +47,10 @@ public class EventMapper implements ResultSetMapper<Event> {
                 .destinationUrl(resultSet.getString("destination_url"))
                 .eventJson(resultSet.getString("event_json"))
                 .eventStatus(EventStatus.valueOf(resultSet.getString("status")))
-                .httpMethod(HttpRequestType.valueOf(resultSet.getString("http_method"))) //FIXME get this from DB
+                .httpMethod(HttpRequestType.valueOf(resultSet.getString("http_method")))
                 .headers(headers)
                 .expiry(resultSet.getTimestamp("expiry"))
+                .lastUpdated(resultSet.getTimestamp("last_updated"))
                 .build();
     }
 }

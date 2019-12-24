@@ -72,7 +72,7 @@ public class CassataServiceResource {
     }
 
     @GET
-    @Path(("status/{appId}/{eventId}"))
+    @Path("status/{appId}/{eventId}")
     @Timed
     public Response getStatus(@PathParam("appId") String appId, @PathParam("eventId") String eventId) {
         EventStatus eventStatus = getRequestProcessor.getStatus(appId, eventId);
@@ -82,6 +82,14 @@ public class CassataServiceResource {
         }
 
         return Response.ok(eventStatus).build();
+    }
+
+    @GET
+    @Path("event/{appId}/{eventId}")
+    @Timed
+    public Response getEvent(@PathParam("appId") String appId, @PathParam("eventId") String eventId) {
+
+        return getRequestProcessor.getEvent(appId, eventId);
     }
 
     @DELETE
