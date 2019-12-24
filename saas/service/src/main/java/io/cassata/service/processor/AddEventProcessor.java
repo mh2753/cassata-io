@@ -16,8 +16,11 @@
 
 package io.cassata.service.processor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import io.cassata.commons.dal.EventsTableDao;
+import io.cassata.commons.exceptions.CassataException;
 import io.cassata.commons.models.Event;
 import io.cassata.commons.models.EventStatus;
 import io.cassata.service.http.request.AddEventRequest;
@@ -25,6 +28,7 @@ import io.cassata.service.http.response.BasicResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
+import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
@@ -37,35 +41,38 @@ public class AddEventProcessor {
     private EventsTableDao eventsTableDao;
 
 
-    public BasicResponse addEvent(AddEventRequest addEventRequest) {
+    public Response addEvent(AddEventRequest addEventRequest) {
 
         log.info("Received Add Event request for appId: {}, event Id: {}.", addEventRequest.getApplication(), addEventRequest.getEventId());
 
-        BasicResponse response = new BasicResponse();
-
         //Build the Event
-        Event event = Event.builder()
-                .eventId(addEventRequest.getEventId())
-                .application(addEventRequest.getApplication())
-                .eventJson(addEventRequest.getEventJson())
-                .httpMethod(addEventRequest.getHttpMethod())
-                .destinationUrl(addEventRequest.getDestinationUrl())
-                .eventStatus(EventStatus.PENDING)
-                .expiry(new Timestamp(addEventRequest.getExpiry()))
-                .headers(addEventRequest.getHeaders())
-                .build();
+        Event event = null;
+        try {
+            event = Event.builder()
+                    .eventId(addEventRequest.getEventId())
+                    .application(addEventRequest.getApplication())
+                    .eventJson(addEventRequest.getEventJson())
+                    .httpMethod(addEventRequest.getHttpMethod())
+                    .destinationUrl(addEventRequest.getDestinationUrl())
+                    .eventStatus(EventStatus.PENDING)
+                    .expiry(new Timestamp(addEventRequest.getExpiry()))
+                    .headerJson(new ObjectMapper().writeValueAsString(addEventRequest.getHeaders()))
+                    .headers(addEventRequest.getHeaders())
+                    .build();
+        } catch (JsonProcessingException e) {
+            throw new CassataException("Internal server error");
+        }
 
         //Insert the event into DB
         try {
             this.eventsTableDao.insertEvent(event);
 
             log.info("Event added successfully for appId: {}, eventId: {}", event.getApplication(), event.getEventId());
-            response.setStatus(BasicResponse.StatusCode.ok);
+            return Response.ok().build();
 
         } catch (UnableToExecuteStatementException e)  {
 
-            response.setStatus(BasicResponse.StatusCode.failed);
-            response.setMessage("Internal Server Error while executing the request");
+            Response.ResponseBuilder responseBuilder = Response.status(500);
             log.error("Exception in adding event to DB.", e);
 
             //FIXME Is there a better way of doing this?
@@ -74,11 +81,16 @@ public class AddEventProcessor {
                 if (sqlException.getErrorCode() == MYSQL_DUPLICATE_ENTRY_ERROR_CODE) {
                     log.error("Duplicate entry for appId: {}, eventId: {}", addEventRequest.getApplication(), addEventRequest.getEventId());
 
-                    response.setMessage("duplicate entry for appId and eventId combination");
+                    responseBuilder.status(409);
+                    responseBuilder.entity("duplicate entry for appId and eventId combination");
                 }
+            } else {
+
+                responseBuilder.entity("Internal Server Error while executing the request");
             }
+
+            return responseBuilder.build();
         }
 
-        return response;
     }
 }

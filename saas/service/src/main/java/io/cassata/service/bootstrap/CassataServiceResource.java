@@ -50,10 +50,12 @@ public class CassataServiceResource {
     @POST
     @Path("add/")
     @Timed
-    public BasicResponse addEvent(AddEventRequest addEventRequest) {
+    public Response addEvent(AddEventRequest addEventRequest) {
 
         try {
 
+            //Cheap way to parse the URL.
+            //TODO All this validation should be moved to a separte module
             URL endpoint = new URL(addEventRequest.getDestinationUrl());
         } catch (MalformedURLException e) {
             log.error("Unable to parse URL {} for app id: {} event id: {}",
@@ -62,13 +64,18 @@ public class CassataServiceResource {
                     addEventRequest.getEventId()
             );
 
-            return BasicResponse.builder()
-                    .status(BasicResponse.StatusCode.failed)
-                    .message("Unable to parse destination URL")
+            return Response.status(404)
+                    .entity("Unable to parse destination URL")
                     .build();
         }
 
-        return addEventProcessor.addEvent(addEventRequest);
+        try {
+            return addEventProcessor.addEvent(addEventRequest);
+        } catch (Exception e) {
+            log.error("Exception in calling addEVent. ", e);
+
+            return Response.status(500).entity(e.getMessage()).build();
+        }
     }
 
     @GET

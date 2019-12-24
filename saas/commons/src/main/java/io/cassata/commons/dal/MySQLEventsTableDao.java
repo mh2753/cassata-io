@@ -34,7 +34,7 @@ public abstract class MySQLEventsTableDao implements EventsTableDao {
     @RegisterMapper(EventMapper.class)
     @SqlUpdate("insert into _saas_events " +
             "(event_id, application, event_json, http_method, http_headers, destination_url, status, expiry, created_at)\n" +
-            "values (:eventId, :application, :eventJson, :httpMethod, :headers, :destinationUrl, :eventStatus, :expiry, now())")
+            "values (:eventId, :application, :eventJson, :httpMethod, :headerJson, :destinationUrl, :eventStatus, :expiry, now())")
     public abstract void insertEvent(@BindBean  Event event);
 
 

@@ -49,6 +49,7 @@ public class EventMapper implements ResultSetMapper<Event> {
                 .eventStatus(EventStatus.valueOf(resultSet.getString("status")))
                 .httpMethod(HttpRequestType.valueOf(resultSet.getString("http_method")))
                 .headers(headers)
+                .headerJson(resultSet.getString("http_headers"))
                 .expiry(resultSet.getTimestamp("expiry"))
                 .lastUpdated(resultSet.getTimestamp("last_updated"))
                 .build();

@@ -17,6 +17,7 @@
 package io.cassata.commons.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cassata.commons.exceptions.CassataException;
@@ -31,6 +32,7 @@ import java.util.Map;
 
 @Builder
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Event {
 
     @JsonIgnore
@@ -42,6 +44,10 @@ public class Event {
 
     private String eventJson;
     private HttpRequestType httpMethod;
+
+    @JsonIgnore
+    private String headerJson;
+
     private List<String> headers;
     private String destinationUrl;
     private EventStatus eventStatus;

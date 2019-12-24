@@ -28,6 +28,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.util.concurrent.Callable;
 
 @Slf4j
@@ -53,7 +54,7 @@ public class EventProcessor implements Callable<Void> {
         int waitTime = 500;
 
         int retries = 0;
-        while (++retries < retryCount) {
+        while (++retries <= retryCount) {
             try {
                 HttpRequestWrapper requestWrapper = new HttpRequestWrapper.Builder(event.getDestinationUrl())
                         .withRequestType(event.getHttpMethod())
@@ -103,14 +104,32 @@ public class EventProcessor implements Callable<Void> {
                     failedRequests.mark();
                     return (null);
                 }
-            } catch (ConnectException e) {
+            } catch (SocketException e) {
 
-                log.error("App Id: " + event.getApplication() + ". Event Id: " + event.getEventId() + ".Connect Exception in calling service.", e);
+                log.error("App Id: " + event.getApplication() + ". Event Id: " + event.getEventId() + ".Connect Exception in calling service. Retrying", e);
 
-                eventsTableDao.updateEventStatus(event.getId(), EventStatus.SERVICE_UNAVAILABLE);
+                if (logFailedRequests) {
+                    log.info("Log failed requests set to true. Logging request for app id: {} event id: {} to database",
+                            event.getApplication(),
+                            event.getEventId());
 
-                failedRequests.mark();
-                return (null);
+                    EventLog eventLog = EventLog.builder()
+                            .saasEventsId(event.getId())
+                            .httpResponse(e.getMessage())
+                            .build()
+                            ;
+
+                    eventlogTableDao.insertEventLog(eventLog);
+
+                    try {
+                        Thread.sleep(waitTime);
+                    } catch (InterruptedException ie) {
+                        log.warn("Sleep interrupted", ie);
+                    }
+
+                    waitTime *= 2;
+                }
+
             } catch (Exception e) {
                 log.error("Exception in calling service. Marking request as failed", e);
                 eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
