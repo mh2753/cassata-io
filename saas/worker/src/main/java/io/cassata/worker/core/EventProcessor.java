@@ -56,14 +56,18 @@ public class EventProcessor implements Callable<Void> {
         int retries = 0;
         while (++retries <= retryCount) {
             try {
+
+                //Create the HTTP request object
                 HttpRequestWrapper requestWrapper = new HttpRequestWrapper.Builder(event.getDestinationUrl())
                         .withRequestType(event.getHttpMethod())
                         .withHeaders(event.getHeaderMap())
                         .build();
 
+                //Execute the HTTP request
                 HttpResponse response = requestWrapper.execute(event.getEventJson());
 
                 if (response.getResponseCode() < 300) {
+                    //HTTP request is success, mark event as completed.
 
                     log.info("App Id: {}, Event Id: {}. Request completed successfully. Marking event completed.",
                             event.getApplication(),
@@ -71,17 +75,21 @@ public class EventProcessor implements Callable<Void> {
 
                     eventsTableDao.updateEventStatus(event.getId(), EventStatus.COMPLETED);
                     completedRequests.mark();
+
                     return (null);
 
                 } else if (response.getResponseCode() >= 500) {
+                    //A recoverable error from the server. Log the attempt and retry
 
                     log.warn("App Id: {}, Event Id: {}. Received error response from service: {}. Retrying.",
                             event.getApplication(),
                             event.getEventId(),
                             response.getResponseString());
 
+                    //Log attempt to eventlog
                     createEventLog(response);
 
+                    //Sleep for some time before retrying
                     try {
                         Thread.sleep(waitTime);
                     } catch (InterruptedException e) {
@@ -91,6 +99,7 @@ public class EventProcessor implements Callable<Void> {
                     waitTime *= 2;
 
                 } else {
+                    //4XX response from service. No point in retrying. Mark failed and exit.
 
                     log.error("App Id: {}, Event Id: {}. Irrecoverable error in service. Marking as failed in DB. Response Code: {}, Response Body: {}",
                             event.getApplication(),
@@ -98,17 +107,22 @@ public class EventProcessor implements Callable<Void> {
                             response.getResponseCode(),
                             response.getResponseString());
 
+                    //Create a log of the event
                     createEventLog(response);
 
+                    //Mark event as failed
                     eventsTableDao.updateEventStatus(event.getId(), EventStatus.FAILED);
                     failedRequests.mark();
+
                     return (null);
                 }
             } catch (SocketException e) {
+                //Connection exception in calling service. Log attempt and retry
 
                 log.error("App Id: " + event.getApplication() + ". Event Id: " + event.getEventId() + ".Connect Exception in calling service. Retrying", e);
 
                 if (logFailedRequests) {
+
                     log.info("Log failed requests set to true. Logging request for app id: {} event id: {} to database",
                             event.getApplication(),
                             event.getEventId());
@@ -119,16 +133,19 @@ public class EventProcessor implements Callable<Void> {
                             .build()
                             ;
 
+                    //Log request to eventlog
                     eventlogTableDao.insertEventLog(eventLog);
 
-                    try {
-                        Thread.sleep(waitTime);
-                    } catch (InterruptedException ie) {
-                        log.warn("Sleep interrupted", ie);
-                    }
-
-                    waitTime *= 2;
                 }
+
+                //Sleep for sometime before retrying
+                try {
+                    Thread.sleep(waitTime);
+                } catch (InterruptedException ie) {
+                    log.warn("Sleep interrupted", ie);
+                }
+
+                waitTime *= 2;
 
             } catch (Exception e) {
                 log.error("Exception in calling service. Marking request as failed", e);

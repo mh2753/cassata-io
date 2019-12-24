@@ -128,7 +128,7 @@ public class WorkerThreadModule extends AbstractModule {
 
             ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(workerConfiguration.getWorkerThreadProperties().getNumWorkerThreads());
 
-            CleanupThread cleanupThread = new CleanupThread(eventsTableDao, workerConfiguration.getWorkerThreadProperties().getTimeToWaitBeforeCleanup());
+            CleanupThread cleanupThread = new CleanupThread(eventsTableDao, workerConfiguration.getWorkerThreadProperties().getSecondsToWaitForCleanup());
 
             ScheduledExecutorService cleanupScheduledPool = Executors.newScheduledThreadPool(NUM_CLEANUP_THREADS);
 

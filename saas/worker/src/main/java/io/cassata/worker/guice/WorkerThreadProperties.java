@@ -26,5 +26,5 @@ public class WorkerThreadProperties {
     private int numEventsProcessedPerTransaction;
     private int workerThreadPollingIntervalInMillis;
     private int httpRetryCount;
-    private int timeToWaitBeforeCleanup;
+    private int secondsToWaitForCleanup;
 }

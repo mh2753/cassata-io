@@ -21,6 +21,7 @@ import io.cassata.commons.models.Event;
 import io.cassata.commons.models.EventStatus;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -41,7 +42,10 @@ public class CleanupThread implements  Runnable {
         log.info("Running cleanup thread. Found {} events to clean up", events.size());
 
         for (Event event: events) {
-            log.warn("Event id: {}, application: {} in processing state for more than {} seconds. Marking as Pending.", event.getId(), event.getApplication(), timeToWaitForCleanup);
+
+            long processingSince = (new Date().getTime() - event.getLastUpdated().getTime())/1000;
+
+            log.warn("Event id: {}, application: {} in processing state for more than {} seconds. Marking as Pending.", event.getId(), event.getApplication(),processingSince);
 
             eventsTableDao.updateEventStatus(event.getId(), EventStatus.PENDING);
         }

@@ -14,13 +14,21 @@
 workerThreadProperties: 
   #Number of worker threads concurrently emptying expired events
   numWorkerThreads: 5
-  #Number of events picked up by a single thread in each 
-  #transaction
+
+  #Number of events picked up by a single thread in each transaction
   numEventsProcessedPerTransaction: 5
+  
   #Worker Thread sleep time in milli-seconds between two transactions
   workerThreadPollingIntervalInMillis: 10000
+
+  #Number of time to retry 5XX requests 
   httpRetryCount: 5
+
+  #Log failed attempts to event log table
   logFailedRequests: true
+
+  #
+  secondsToWaitForCleanup: 1000
 
 #####################   DB CONFIGURATION    #######################
 database:
