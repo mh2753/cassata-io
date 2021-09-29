@@ -20,13 +20,13 @@ The scheduler is made up of a _Service_ that accepts requets from clients, a _Da
 
 ```json
 {
-  "event-id": "def381e4-98a6-4353-8d96-792ceea2bb33",
-  "application-id": "order-management-system",
-  "event": "{arbitrary event JSON}",
-  "expiry": 1524141245,
-  "url": "http://urltodestination/",
-  "method": "POST",
-  "request-headers": [
+  "eventId": "def381e4-98a6-4353-8d96-792ceea2bb33",
+  "application": "order-management-system",
+  "eventJson": "{}",
+  "expiry": 1724141245,
+  "destinationUrl": "http://urltodestination/",
+  "httpMethod": "POST",
+  "headers": [
     "Content-Type: application/json",
     "Header1: value1",
     "Header2: value2"
