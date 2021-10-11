@@ -80,7 +80,7 @@ The Service and Worker do not have to be started on the same host (they just nee
 ## Configuration 
 ### Service Configuration
 
-The Service is a regular dropwizard service and the bulk of config is just regular dropwizard config. Refer https://www.dropwizard.io/1.3.1/docs/manual/configuration.html for details. 
+The Service is a regular dropwizard service and the bulk of config is just regular dropwizard config. Refer https://www.dropwizard.io/en/latest/manual/configuration.html for details. 
 
 Cassata specific service config is nested under _service_ in the config file
 
@@ -90,7 +90,7 @@ Cassata specific service config is nested under _service_ in the config file
 
 ### Worker Configuration 
 
-Cassata specific worker configurations are nested under _workerThreadProperties_ in the config file. They are explained below. Database configurations are nested under _database_ and these are regular JDBI configurations (refer: https://www.dropwizard.io/1.3.1/docs/manual/jdbi.html#configuration) 
+Cassata specific worker configurations are nested under _workerThreadProperties_ in the config file. They are explained below. Database configurations are nested under _database_ and these are regular JDBI configurations (refer: https://www.dropwizard.io/en/latest/manual/configuration.html) 
 
 | Config        | Default           | Explanation  |
 | ------------- |:-------------:| -----|
