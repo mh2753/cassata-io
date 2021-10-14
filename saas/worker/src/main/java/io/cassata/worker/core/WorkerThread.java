@@ -23,7 +23,6 @@ import io.cassata.commons.dal.EventsTableDao;
 import io.cassata.commons.models.Event;
 import io.cassata.commons.models.EventStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.omg.PortableInterceptor.INACTIVE;
 
 import java.util.ArrayList;
 import java.util.List;
